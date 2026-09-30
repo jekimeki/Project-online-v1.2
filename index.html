@@ -1,0 +1,2245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Monopoli Gairah & Posisi Cinta 💕</title>
+
+    <script>
+      (function() {
+          const ua = navigator.userAgent || navigator.vendor || window.opera;
+          const isInApp = (ua.indexOf("WhatsApp") > -1) || 
+                          (ua.indexOf("FBAN") > -1) || 
+                          (ua.indexOf("FBAV") > -1) || 
+                          (ua.indexOf("Instagram") > -1) ||
+                          (ua.indexOf("Line") > -1);
+
+          if (isInApp && !sessionStorage.getItem('inapp_warned')) {
+              sessionStorage.setItem('inapp_warned', 'true');
+              alert("⚠️ PENTING UNTUK MODE LDR:\n\nAnda membuka link ini dari dalam aplikasi chat.\n\nAgar koneksi Video Call & Game lancar tanpa terputus, harap salin link halaman ini dan buka langsung melalui aplikasi SAFARI atau CHROME di HP Anda!");
+          }
+      })();
+    </script>
+
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #fff0f3 0%, #ffccd5 50%, #ffe5ec 100%);
+            background-image: 
+                radial-gradient(#ff758f 0.75px, transparent 0.75px), 
+                radial-gradient(#ff4d6d 0.75px, #fff0f3 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            color: #4a1525;
+            touch-action: manipulation;
+        }
+
+        .lobby-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            padding: 15px;
+            background: rgba(255, 240, 243, 0.92);
+            backdrop-filter: blur(5px);
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 3000;
+        }
+
+        .lobby-card {
+            background: #ffffff;
+            border: 2px solid #ff758f;
+            border-radius: 20px;
+            padding: 18px 16px;
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(217, 4, 41, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .lobby-card h1 {
+            color: #ff4d6d;
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 2px;
+            text-shadow: 0 2px 4px rgba(255, 77, 109, 0.15);
+        }
+
+        .lobby-card .subtitle {
+            color: #d90429;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .lobby-btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            margin-bottom: 8px;
+        }
+
+        .btn-mulai, .btn-klimaks, .btn-ldr, .btn-monopoli, .btn-musik {
+            border: none;
+            padding: 8px;
+            border-radius: 25px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-mulai { background: linear-gradient(135deg, #ff4d6d, #d90429); color: white; box-shadow: 0 4px 12px rgba(217, 4, 41, 0.3); }
+        .btn-klimaks { background: linear-gradient(135deg, #7209b7, #3a0ca3); color: white; box-shadow: 0 4px 12px rgba(114, 9, 183, 0.3); }
+        .btn-ldr { background: linear-gradient(135deg, #00b4d8, #0077b6); color: white; box-shadow: 0 4px 12px rgba(0, 180, 216, 0.3); }
+        .btn-monopoli { background: linear-gradient(135deg, #f72585, #b5179e); color: white; box-shadow: 0 4px 12px rgba(247, 37, 133, 0.3); }
+        .btn-musik { background: #ffe5ec; color: #d90429; border: 1px solid #ff758f; }
+
+        .btn-mulai:active, .btn-klimaks:active, .btn-ldr:active, .btn-monopoli:active, .btn-musik:active {
+            transform: scale(0.97);
+        }
+
+        .music-selector-box {
+            display: flex;
+            gap: 4px;
+            width: 100%;
+            margin-top: 4px;
+            margin-bottom: 6px;
+        }
+
+        .music-genre-btn {
+            flex: 1;
+            font-size: 0.52rem;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid #ff758f;
+            background: #fff0f3;
+            color: #d90429;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .music-genre-btn.active-genre {
+            background: #ff4d6d;
+            color: white;
+        }
+
+        .ldr-online-panel {
+            display: none;
+            background: #e0fbfc;
+            border: 1.5px solid #00b4d8;
+            border-radius: 12px;
+            padding: 10px;
+            margin-bottom: 8px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .ldr-online-panel input {
+            width: 100%;
+            padding: 6px;
+            font-size: 0.75rem;
+            border: 1px solid #0096c7;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            text-align: center;
+        }
+
+        .game-layout {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            padding: 4px 8px;
+            background: transparent;
+            overflow: hidden;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        header h1 {
+            color: #c9184a;
+            font-size: 0.9rem;
+            margin: 0;
+            font-weight: 800;
+            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .round-badge {
+            font-size: 0.55rem;
+            background: #ffffff;
+            color: #d90429;
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            display: inline-block;
+            align-self: center;
+            box-shadow: 0 2px 6px rgba(217, 4, 41, 0.15);
+            border: 1px solid #ffccd5;
+        }
+
+        .board-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            flex-grow: 1;
+            min-height: 0;
+            padding: 1px 0;
+            gap: 3px;
+        }
+
+        .floating-property-panel {
+            display: none;
+            width: 100%;
+            max-width: min(96vw, 70vh);
+            background: rgba(255, 255, 255, 0.95);
+            border: 1.5px solid #ff758f;
+            border-radius: 8px;
+            padding: 3px 8px;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.58rem;
+            color: #590d22;
+            box-shadow: 0 3px 10px rgba(217, 4, 41, 0.2);
+            flex-shrink: 0;
+            font-weight: bold;
+        }
+
+        .board-wrapper {
+            position: relative;
+            aspect-ratio: 1 / 1;
+            width: 100%;
+            max-width: min(96vw, 70vh);
+            background-color: #d90429;
+            padding: 2px;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(217, 4, 41, 0.3);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            gap: 1px;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            z-index: 2;
+        }
+
+        .board-svg {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: calc(100% - 4px);
+            height: calc(100% - 4px);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .cell {
+            background-color: #fff;
+            border-radius: 1px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 0.5px;
+            font-size: clamp(0.3rem, 1.1vw, 0.45rem);
+            font-weight: bold;
+            position: relative;
+            border: 0.5px solid #ffccd5;
+            color: #d90429;
+            overflow: hidden;
+        }
+
+        .cell.alt {
+            background-color: #fff0f3;
+        }
+
+        .cell.center-board {
+            background-color: #ffe5ec;
+            border: none;
+        }
+
+        .cell span {
+            color: #800f2f;
+            z-index: 3;
+            position: relative;
+        }
+
+        .cell-silhouette {
+            position: absolute;
+            bottom: 1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 65%;
+            height: 60%;
+            opacity: 0.18;
+            z-index: 1;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell-icon {
+            font-size: clamp(0.6rem, 2.2vw, 0.45rem);
+            text-align: center;
+            line-height: 1;
+            z-index: 3;
+            position: relative;
+        }
+
+        .cell-owner-indicator {
+            position: absolute;
+            top: 0.5px;
+            right: 0.5px;
+            font-size: 7px;
+            padding: 0 2px;
+            border-radius: 3px;
+            color: white;
+            font-weight: bold;
+            line-height: 1;
+            z-index: 4;
+        }
+        .owner-p1 { background-color: #ef233c; }
+        .owner-p2 { background-color: #3a86ff; }
+
+        .floating-chat-container {
+            display: none;
+            width: 100%;
+            max-width: min(85vw, 65vh);
+            background: rgba(255, 255, 255, 0.98);
+            border: 1.5px solid #ff758f;
+            border-radius: 10px;
+            padding: 4px 8px;
+            z-index: 2500;
+            box-shadow: 0 4px 15px rgba(217, 4, 41, 0.3);
+            flex-shrink: 0;
+            margin-bottom: 2px;
+        }
+
+        .chat-log {
+            font-size: 0.55rem;
+            color: #590d22;
+            max-height: 28px;
+            overflow-y: auto;
+            margin-bottom: 2px;
+            padding: 2px;
+            background: #fff0f3;
+            border-radius: 4px;
+            border: 0.5px solid #ffccd5;
+            text-align: left;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 2px;
+        }
+
+        .chat-input-row input {
+            flex-grow: 1;
+            padding: 4px 6px;
+            font-size: 0.68rem;
+            border: 1px solid #ff758f;
+            border-radius: 6px;
+            outline: none;
+            color: #4a1525;
+            background: #fff;
+        }
+
+        .chat-send-btn {
+            background: linear-gradient(135deg, #ff4d6d, #d90429);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.68rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .chat-quick-btns {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 1px;
+        }
+
+        .quick-btn {
+            background: #ffe5ec;
+            border: 1px solid #ff758f;
+            color: #d90429;
+            font-size: 0.52rem;
+            padding: 2px 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .quick-btn:active { background: #ff4d6d; color: #fff; }
+
+        .control-panel {
+            width: 100%;
+            max-width: min(85vw, 65vh);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border: 1.5px solid #ff758f;
+            border-radius: 12px;
+            padding: 4px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(217, 4, 41, 0.2);
+            flex-shrink: 0;
+        }
+
+        .player-badge {
+            padding: 4px 8px;
+            border-radius: 8px;
+            background: #fff0f3;
+            border: 1px solid #ffccd5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            color: #800f2f;
+            font-weight: bold;
+            font-size: 0.52rem;
+            min-width: 78px;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); box-shadow: 0 0 4px rgba(217, 4, 41, 0.3); }
+            50% { transform: scale(1.05); box-shadow: 0 0 12px rgba(217, 4, 41, 0.7); background: #ff4d6d; color: #fff; }
+            100% { transform: scale(1); box-shadow: 0 0 4px rgba(217, 4, 41, 0.3); }
+        }
+
+        .player-badge.active {
+            border-color: #d90429;
+            background: #ffe5ec;
+            animation: pulseGlow 1.5s infinite ease-in-out;
+        }
+
+        .dice-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+        }
+
+        .dice-btn {
+            width: 34px;
+            height: 34px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease, background 0.3s ease;
+        }
+
+        .dice-btn.p1-turn { background: linear-gradient(135deg, #ff4d6d, #d90429); }
+        .dice-btn.p2-turn { background: linear-gradient(135deg, #4ea8de, #3a86ff); }
+        .dice-btn:active { transform: scale(0.92); }
+
+        .dadu-status-text {
+            font-size: 0.45rem;
+            font-weight: bold;
+            color: #800f2f;
+        }
+
+        .tokens-container {
+            position: absolute;
+            bottom: 1px;
+            right: 1px;
+            display: flex;
+            gap: 2px;
+            z-index: 10;
+        }
+
+        .token {
+            width: clamp(13px, 4vw, 20px);
+            height: clamp(13px, 4vw, 20px);
+            border-radius: 50%;
+            border: 1px solid white;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+
+        .token-1 { background-color: #ef233c; } 
+        .token-2 { background-color: #3a86ff; } 
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(74, 21, 37, 0.85);
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: #fff0f3;
+            border: 2.5px solid #d90429;
+            padding: 14px 16px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 340px;
+            width: 92%;
+            box-shadow: 0 10px 30px rgba(89, 13, 34, 0.5);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 { color: #d90429; margin-top: 0; font-size: 0.95rem; margin-bottom: 6px; }
+        .modal-content p { font-size: 0.75rem; color: #590d22; line-height: 1.35; margin: 6px 0; }
+        .modal-illustration { background: #ffe5ec; border: 1px dashed #ff758f; border-radius: 8px; padding: 6px; font-size: 0.68rem; color: #800f2f; margin: 6px 0; text-align: left; }
+
+        .stats-box {
+            background: #ffffff;
+            border: 1.5px solid #ff758f;
+            border-radius: 10px;
+            padding: 8px;
+            margin: 6px 0;
+            text-align: left;
+            font-size: 0.68rem;
+            color: #4a1525;
+        }
+
+        .video-container-wa {
+            display: none;
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 6px 0;
+            border: 1.5px solid #ff758f;
+        }
+
+        #remote-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .self-video-box {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 65px;
+            aspect-ratio: 3 / 4;
+            background: #222;
+            border-radius: 5px;
+            overflow: hidden;
+            border: 1.5px solid #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        #local-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .video-label-wa {
+            position: absolute;
+            bottom: 2px;
+            left: 4px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 0.45rem;
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+
+        .timer-display {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #d90429;
+            margin: 6px 0;
+            background: #fff;
+            border: 1.5px dashed #ff758f;
+            border-radius: 8px;
+            padding: 4px;
+            display: none;
+        }
+
+        .btn-action-group {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-start-timer { background: linear-gradient(135deg, #2b9348, #55a630); color: white; border: none; padding: 7px 12px; border-radius: 10px; font-weight: bold; font-size: 0.75rem; cursor: pointer; width: 100%; }
+        .btn-action, .btn-skip { background: linear-gradient(45deg, #ef233c, #d90429); color: white; border: none; padding: 6px 12px; border-radius: 10px; font-weight: bold; font-size: 0.75rem; cursor: pointer; }
+        
+        .btn-veto { 
+            background: linear-gradient(135deg, #7209b7, #3a0ca3); 
+            color: white; 
+            border: none; 
+            padding: 7px 12px; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            font-size: 0.75rem; 
+            cursor: pointer; 
+            width: 100%; 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Audio Element untuk Musik Latar Online (Lo-Fi / Romantic Chill) -->
+    <audio id="bgm-audio" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="lobby-container" id="lobby-screen">
+        <div class="lobby-card">
+            <h1>Ular Tangga & Monopoli Cinta 💕</h1>
+            <div class="subtitle" id="lobby-subtitle">Pilih Mode Permainan Pasangan</div>
+            
+            <div class="lobby-btn-group" id="normal-menu-buttons">
+                <button class="btn-mulai" onclick="startGame(1)">▶ Babak 1: Ular Tangga Klasik (Lokal)</button>
+                <button class="btn-klimaks" onclick="startGame(2)">⚡ Babak 2: 33 Misi & 3 Level (Lokal)</button>
+                <button class="btn-ldr" onclick="showLDROnlineMenu()">📱 Babak 3: Mode LDR (Online / 2 HP)</button>
+                <button class="btn-monopoli" onclick="startMonopolyGame()">🔥 Babak 4: Monopoli 3 Putaran Gairah (Beli Petak)</button>
+                
+                <div style="font-size:0.6rem; font-weight:bold; color:#d90429; margin-top:4px;">🎵 Soundtrack Musik Latar Online:</div>
+                <div class="music-selector-box">
+                    <button class="music-genre-btn active-genre" id="genre-chill" onclick="setMusicGenre('chill', 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=lofi-study-112191.mp3')">Lo-Fi Chill</button>
+                    <button class="music-genre-btn" id="genre-sensual" onclick="setMusicGenre('sensual', 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=chill-abstract-intention-12099.mp3')">Sensual Vibe</button>
+                    <button class="music-genre-btn" id="genre-playful" onclick="setMusicGenre('playful', 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c2a737f2.mp3?filename=good-night-160166.mp3')">Romantic Night</button>
+                </div>
+                <button class="btn-musik" id="lobby-music-btn" onclick="toggleAudio()">🎵 Play Musik Latar</button>
+            </div>
+
+            <div class="ldr-online-panel" id="ldr-panel">
+                <p style="font-size: 0.7rem; font-weight: bold; color: #0077b6; margin-bottom: 4px;">🌐 Mode LDR Jarak Jauh (Online)</p>
+                <button class="btn-ldr" onclick="createOnlineRoom()" id="btn-create-room" style="width:100%; margin-bottom:4px; padding:7px;">Buat Room LDR (Host)</button>
+                
+                <div id="share-link-area" style="display:none;">
+                    <input type="text" id="room-link-input" readonly>
+                    <button class="btn-mulai" onclick="copyRoomLink()" style="padding: 6px; font-size: 0.7rem; width:100%; margin-bottom:4px;">Salin Link Undangan</button>
+                    <p style="font-size: 0.6rem; color: #d90429;" id="waiting-text">Menunggu pasangan...</p>
+                </div>
+                
+                <div id="manual-start-area" style="display:none; margin-top: 5px;">
+                    <button class="btn-mulai" id="btn-request-cam" onclick="requestCameraPermission()" style="background: linear-gradient(135deg, #2b9348, #55a630); font-size:0.75rem; padding:8px; margin-bottom: 4px;">📹 Izinkan Kamera & Mic Dulu</button>
+                    <button class="btn-mulai" id="btn-enter-game" onclick="connectAndStartLDR()" style="background: linear-gradient(135deg, #00b4d8, #0077b6); font-size:0.75rem; padding:8px; display:none;">▶ Masuk ke Permainan Sekarang</button>
+                </div>
+
+                <button class="btn-musik" onclick="backToNormalMenu()" style="width:100%; font-size:0.7rem; padding:5px; margin-top: 5px;">← Kembali</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-layout" id="game-screen">
+        <header>
+            <h1 id="game-main-title">ULAR TANGGA CINTA 💕</h1>
+            <div class="round-badge" id="round-indicator">Babak 1</div>
+        </header>
+
+        <div class="board-container">
+            <div class="floating-property-panel" id="floating-prop-panel">
+                <span style="color:#d90429;">🏰 STATUS PROPERTI:</span>
+                <span id="p1-prop-summary" style="color:#ef233c;">❤ Pria: 0 Petak</span>
+                <span id="p2-prop-summary" style="color:#3a86ff;">💙 Wanita: 0 Petak</span>
+            </div>
+
+            <div class="board-wrapper">
+                <svg class="board-svg" id="board-svg" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+                <div class="board" id="board"></div>
+            </div>
+        </div>
+
+        <div class="floating-chat-container" id="floating-chat-box">
+            <div class="chat-log" id="chat-log-content">💬 <i>Obrolan terhubung...</i></div>
+            <div class="chat-input-row">
+                <input type="text" id="chat-input-field" placeholder="Ketik pesan / godaan..." onkeypress="handleChatKeyPress(event)">
+                <button class="chat-send-btn" onclick="sendTypedChat()">Kirim</button>
+            </div>
+            <div class="chat-quick-btns">
+                <button class="quick-btn" onclick="sendQuickChat('⚡ Cepat lakuin hukumannya!')">⚡ Cepat Hukuman</button>
+                <button class="quick-btn" onclick="sendQuickChat('🎁 Mana hadiahnya sayang?')">🎁 Mana Hadiah</button>
+                <button class="quick-btn" onclick="sendQuickChat('😉 Jangan lama-lama ya!')">😉 Jangan Lama</button>
+                <button class="quick-btn" onclick="sendQuickChat('🔥 Udah siap nih!')">🔥 Udah Siap</button>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div id="p1-card" class="player-badge active">
+                <span id="p1-label">❤ Pria</span>
+                <span>Poin: <strong id="p1-money">500</strong></span>
+                <span>Putaran: <strong id="p1-lap">1</strong></span>
+            </div>
+
+            <div class="dice-area">
+                <div class="dice-btn p1-turn" id="dice-btn" onclick="rollDice()">🎲</div>
+                <div class="dadu-status-text" id="dice-result">Dadu: -</div>
+            </div>
+
+            <div id="p2-card" class="player-badge">
+                <span id="p2-label">💙 Wanita</span>
+                <span>Poin: <strong id="p2-money">500</strong></span>
+                <span>Putaran: <strong id="p2-lap">1</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="challenge-modal">
+        <div class="modal-content">
+            <h3 id="modal-title">🔥 Sensasi Intim</h3>
+            <p id="modal-text">Tantangan...</p>
+            <div id="modal-illustration-container"></div>
+            
+            <div class="video-container-wa" id="video-container-wa">
+                <video id="remote-video" autoplay playsinline></video>
+                <div class="video-label-wa">Pasangan</div>
+                
+                <div class="self-video-box">
+                    <video id="local-video" autoplay playsinline muted></video>
+                </div>
+            </div>
+
+            <div class="timer-display" id="timer-box">1:00</div>
+            <div class="btn-action-group" id="modal-btn-container"></div>
+        </div>
+    </div>
+
+    <script>
+        let isOnlineLDR = false;
+        let peer = null;
+        let conn = null;
+        let callObj = null;
+        let localStream = null;
+        let isHost = false;
+        let myRole = ''; 
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomIdFromURL = urlParams.get('room');
+
+        if (roomIdFromURL) {
+            isOnlineLDR = true;
+            myRole = 'p2';
+            isHost = false;
+            document.getElementById('lobby-subtitle').innerText = "Menyiapkan Koneksi Tamu...";
+            document.getElementById('normal-menu-buttons').style.display = 'none';
+            document.getElementById('ldr-panel').style.display = 'block';
+            document.getElementById('btn-create-room').style.display = 'none';
+            document.getElementById('waiting-text').innerText = "Menghubungkan ke Host...";
+
+            peer = new Peer({
+                config: {'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }]}
+            });
+
+            peer.on('open', (id) => {
+                connectToHost(roomIdFromURL);
+            });
+
+            peer.on('error', (err) => {
+                document.getElementById('waiting-text').innerText = "Gagal terhubung: " + err.type;
+            });
+        }
+
+        function connectToHost(hostId) {
+            if (conn && conn.open) return;
+            conn = peer.connect(hostId, { reliable: true });
+            setupPeerConnection();
+        }
+
+        function showLDROnlineMenu() {
+            document.getElementById('normal-menu-buttons').style.display = 'none';
+            document.getElementById('ldr-panel').style.display = 'block';
+        }
+
+        function backToNormalMenu() {
+            document.getElementById('ldr-panel').style.display = 'none';
+            document.getElementById('normal-menu-buttons').style.display = 'flex';
+        }
+
+        function createOnlineRoom() {
+            isOnlineLDR = true;
+            myRole = 'p1';
+            isHost = true;
+            const randomId = 'ldr_cinta_' + Math.random().toString(36).substring(2, 8);
+            
+            peer = new Peer(randomId, {
+                config: {'iceServers': [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:global.stun.twilio.com:3478' }]}
+            });
+
+            peer.on('open', (id) => {
+                document.getElementById('btn-create-room').style.display = 'none';
+                document.getElementById('share-link-area').style.display = 'block';
+                const fullLink = window.location.href.split('?')[0] + '?room=' + id;
+                document.getElementById('room-link-input').value = fullLink;
+            });
+
+            peer.on('connection', (connection) => {
+                conn = connection;
+                setupPeerConnection();
+                document.getElementById('waiting-text').innerText = "Partner terhubung dengan stabil!";
+                document.getElementById('manual-start-area').style.display = 'block';
+                document.getElementById('btn-request-cam').style.display = 'block';
+            });
+
+            peer.on('error', (err) => {
+                alert('Error Host: ' + err.type);
+            });
+        }
+
+        async function requestCameraPermission() {
+            try {
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                } catch (e) {}
+
+                let videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                
+                if (localStream) {
+                    videoStream.getTracks().forEach(track => localStream.addTrack(track));
+                } else {
+                    localStream = videoStream;
+                }
+
+                alert("Izin kamera & mikrofon berhasil diberikan! Silakan masuk ke game.");
+                document.getElementById('btn-request-cam').style.display = 'none';
+                document.getElementById('btn-enter-game').style.display = 'block';
+            } catch (err) {
+                alert("Gagal mendapatkan izin: " + err.message + ". Pastikan buka lewat aplikasi Safari, bukan dari dalam WhatsApp.");
+            }
+        }
+
+        function connectAndStartLDR() {
+            if (conn && conn.open) {
+                conn.send({ type: 'start-ldr' });
+            }
+            startGame(3);
+        }
+
+        function copyRoomLink() {
+            const copyText = document.getElementById('room-link-input');
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert('Link LDR berhasil disalin!');
+        }
+
+        function setupPeerConnection() {
+            if (!conn) return;
+
+            conn.on('open', () => {
+                document.getElementById('lobby-subtitle').innerText = "Berhasil Terhubung!";
+                if (!isHost) {
+                    document.getElementById('waiting-text').innerText = "Terhubung dengan Host!";
+                    document.getElementById('manual-start-area').style.display = 'block';
+                    document.getElementById('btn-request-cam').style.display = 'block';
+                }
+            });
+
+            conn.on('data', (data) => {
+                if (data.type === 'start-ldr') {
+                    startGame(3);
+                } else if (data.type === 'roll-dice') {
+                    executeMove(data.player, data.steps, data.targetPos);
+                } else if (data.type === 'show-modal') {
+                    showModalRemote(data.title, data.text, data.seconds, data.illustration);
+                } else if (data.type === 'start-timer') {
+                    startTimerCountdownRemote(data.seconds);
+                } else if (data.type === 'close-modal') {
+                    closeModalRemote();
+                } else if (data.type === 'chat-msg') {
+                    appendChatLog(data.sender, data.message, true);
+                }
+            });
+
+            peer.on('call', async (incomingCall) => {
+                try {
+                    if (!localStream) {
+                        try {
+                            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        } catch (e) {}
+                        let vStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                        if (localStream) {
+                            vStream.getTracks().forEach(t => localStream.addTrack(t));
+                        } else {
+                            localStream = vStream;
+                        }
+                    }
+                    incomingCall.answer(localStream);
+                    callObj = incomingCall;
+                    incomingCall.on('stream', (remoteStream) => {
+                        const remoteVideo = document.getElementById('remote-video');
+                        remoteVideo.srcObject = remoteStream;
+                    });
+                } catch (err) {
+                    alert("Gagal menjawab panggilan video: " + err.message);
+                }
+            });
+
+            conn.on('close', () => {
+                alert("Koneksi dengan pasangan terputus.");
+                location.reload();
+            });
+        }
+
+        async function startVideoCallSession() {
+            if (!isOnlineLDR) return;
+            const videoContainer = document.getElementById('video-container-wa');
+            videoContainer.style.display = 'block';
+
+            try {
+                if (!localStream) {
+                    try {
+                        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    } catch (e) {}
+                    let vStream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    if (localStream) {
+                        vStream.getTracks().forEach(t => localStream.addTrack(t));
+                    } else {
+                        localStream = vStream;
+                    }
+                }
+                const localVideo = document.getElementById('local-video');
+                localVideo.srcObject = localStream;
+
+                if (isHost && conn && conn.peer) {
+                    let partnerPeerId = conn.peer;
+                    let outCall = peer.call(partnerPeerId, localStream);
+                    if (outCall) {
+                        callObj = outCall;
+                        outCall.on('stream', (remoteStream) => {
+                            const remoteVideo = document.getElementById('remote-video');
+                            remoteVideo.srcObject = remoteStream;
+                        });
+                    }
+                }
+            } catch (err) {
+                alert("Izinkan akses kamera dan mikrofon: " + err.message);
+            }
+        }
+
+        function stopVideoCallSession() {
+            const videoContainer = document.getElementById('video-container-wa');
+            videoContainer.style.display = 'none';
+
+            if (callObj) {
+                callObj.close();
+                callObj = null;
+            }
+        }
+
+        function sendQuickChat(msg) {
+            let senderName = (myRole === 'p1') ? "Pria" : "Wanita";
+            appendChatLog(senderName, msg, false);
+            if (isOnlineLDR && conn && conn.open) {
+                conn.send({
+                    type: 'chat-msg',
+                    sender: senderName,
+                    message: msg
+                });
+            }
+        }
+
+        function sendTypedChat() {
+            const inputField = document.getElementById('chat-input-field');
+            const msg = inputField.value.trim();
+            if (!msg) return;
+
+            let senderName = (myRole === 'p1') ? "Pria" : "Wanita";
+            appendChatLog(senderName, msg, false);
+            if (isOnlineLDR && conn && conn.open) {
+                conn.send({
+                    type: 'chat-msg',
+                    sender: senderName,
+                    message: msg
+                });
+            }
+            inputField.value = '';
+        }
+
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendTypedChat();
+            }
+        }
+
+        function appendChatLog(sender, msg, isIncoming) {
+            const chatLog = document.getElementById('chat-log-content');
+            chatLog.innerHTML += `<br><b>${sender}:</b> ${msg}`;
+            chatLog.scrollTop = chatLog.scrollHeight;
+
+            if (isIncoming) {
+                playChatNotificationSound();
+            }
+        }
+
+        function playChatNotificationSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            try {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.08);
+                
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.25);
+                
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.25);
+            } catch (e) {}
+        }
+
+        const BOARD_SIZE = 100;
+        let positions = [1, 1];
+        let playerMoney = [500, 500];
+        let playerLaps = [1, 1]; 
+        let currentPlayer = 0;
+        let isRolling = false;
+        let currentRound = 1; 
+        const playerNames = ["Pria (Merah)", "Wanita (Biru)"];
+        let level3Collected = [0, 0]; 
+        let isMonopolyMode = false;
+        let isInJail = [false, false];
+        let lapFinishedBy = [null, null];
+        let propertyMap = {};
+
+        let gameStats = {
+            challengesDone: [0, 0],
+            propertiesBought: [0, 0]
+        };
+
+        let audioCtx = null;
+        let isAudioPlaying = false;
+        let countdownInterval = null;
+        let isGameOver = false;
+
+        function setMusicGenre(genre, audioUrl) {
+            document.getElementById('genre-chill').classList.remove('active-genre');
+            document.getElementById('genre-sensual').classList.remove('active-genre');
+            document.getElementById('genre-playful').classList.remove('active-genre');
+            document.getElementById(`genre-${genre}`).classList.add('active-genre');
+
+            const bgm = document.getElementById('bgm-audio');
+            bgm.src = audioUrl;
+            if (isAudioPlaying) {
+                bgm.play().catch(e => {});
+            }
+        }
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleAudio() {
+            initAudioContext();
+            const bgm = document.getElementById('bgm-audio');
+            if (isAudioPlaying) {
+                bgm.pause();
+                document.getElementById('lobby-music-btn').innerText = "🎵 Play Musik Latar";
+                isAudioPlaying = false;
+            } else {
+                bgm.play().then(() => {
+                    document.getElementById('lobby-music-btn').innerText = "🎵 Matikan Musik";
+                    isAudioPlaying = true;
+                }).catch(err => {
+                    alert("Gagal memutar musik otomatis. Silakan klik tombol play sekali lagi.");
+                });
+            }
+        }
+
+        function playDiceSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(200 + Math.random() * 300, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }, i * 60);
+            }
+        }
+
+        function playCoinSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            try {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(987.77, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(1318.51, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.2);
+            } catch (e) {}
+        }
+
+        function playStepSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(700, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.08);
+        }
+
+        function playLadderSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const notes = [300, 450, 600, 750, 900];
+            notes.forEach((freq, idx) => {
+                setTimeout(() => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.12);
+                }, idx * 80);
+            });
+        }
+
+        function playSnakeSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            const notes = [800, 650, 500, 350, 200];
+            notes.forEach((freq, idx) => {
+                setTimeout(() => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.12);
+                }, idx * 80);
+            });
+        }
+
+        function playAlarmSound() {
+            initAudioContext();
+            if (!audioCtx) return;
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                }, i * 250);
+            }
+        }
+
+        function startGame(round) {
+            initAudioContext();
+            isMonopolyMode = false;
+            currentRound = round;
+            positions = [1, 1];
+            playerMoney = [500, 500];
+            playerLaps = [1, 1];
+            level3Collected = [0, 0];
+            isInJail = [false, false];
+            lapFinishedBy = [null, null];
+            propertyMap = {};
+            gameStats = { challengesDone: [0, 0], propertiesBought: [0, 0] };
+            isGameOver = false;
+            
+            document.getElementById('floating-prop-panel').style.display = 'none';
+            document.getElementById('game-main-title').innerText = "ULAR TANGGA CINTA 💕";
+
+            if (currentRound === 3) {
+                document.getElementById('round-indicator').innerText = isOnlineLDR ? "Babak 3: LDR (Online)" : "Babak 3: LDR (Lokal)";
+                if (isOnlineLDR) {
+                    document.getElementById('p1-label').innerText = "❤ Pria (Host)";
+                    document.getElementById('p2-label').innerText = "💙 Wanita (Tamu)";
+                    document.getElementById('floating-chat-box').style.display = 'block';
+                }
+            } else if (currentRound === 2) {
+                document.getElementById('round-indicator').innerText = "Babak 2: 33 Misi & 3 Level";
+                document.getElementById('floating-chat-box').style.display = 'none';
+            } else {
+                document.getElementById('round-indicator').innerText = "Babak 1: Mode Klasik";
+                document.getElementById('floating-chat-box').style.display = 'none';
+            }
+
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            createBoard();
+            updateTurnPermissions();
+        }
+
+        function startMonopolyGame() {
+            initAudioContext();
+            isMonopolyMode = true;
+            currentRound = 4;
+            positions = [1, 1];
+            playerMoney = [500, 500];
+            playerLaps = [1, 1];
+            isInJail = [false, false];
+            lapFinishedBy = [null, null];
+            propertyMap = {};
+            gameStats = { challengesDone: [0, 0], propertiesBought: [0, 0] };
+            isGameOver = false;
+
+            document.getElementById('floating-prop-panel').style.display = 'flex';
+            document.getElementById('game-main-title').innerText = "MONOPOLI GAIRAH & POSISI 🔥";
+            document.getElementById('round-indicator').innerText = "Babak 4: Monopoli 3 Putaran Gairah";
+            document.getElementById('floating-chat-box').style.display = 'none';
+
+            document.getElementById('lobby-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'flex';
+            createMonopolyBoard();
+            updateTurnPermissions();
+        }
+
+        const monopolyTiles = {
+            1: { name: "START", type: "start", desc: "Mulai petualangan! Dapat +100 Poin Gairah." },
+            5: { name: "🎁 Kartu Kesempatan", type: "chance", desc: "Tarik kartu tantangan spontan berhadiah/hukuman." },
+            11: { name: "🚨 Penjara / Time Out", type: "jail", desc: "Wajib oral pasangan 30-60 detik atau bayar 150 Poin Gairah untuk bebas!" },
+            15: { name: "🎁 Dana Umum", type: "community", desc: "Undian cinta bersama pasangan." },
+            21: { name: "🅿 Parkir Bebas", type: "free", desc: "Istirahat santai berpelukan 1 menit." },
+            25: { name: "🎁 Kartu Kesempatan", type: "chance", desc: "Tarik kartu tantangan spontan." },
+            31: { name: "🚨 Masuk Penjara!", type: "gotojail", desc: "Tertangkap basah! Masuk Penjara Gairah." },
+            35: { name: "🎁 Dana Umum", type: "community", desc: "Undian cinta bersama pasangan." },
+            40: { name: "👑 Akhir Putaran / Puncak!", type: "win", desc: "Capai garis akhir putaran ini!" }
+        };
+
+        const monopolyLapContent = {
+            1: { 
+                2: { text: "<b>[Putaran 1]</b> Saling tatap mata dan cium bibir kilat selama 15 detik." },
+                3: { text: "<b>[Putaran 1]</b> Lepaskan aksesoris, perhiasan, hijab atau kaus kaki yang kamu kenakan." },
+                4: { text: "<b>[Putaran 1]</b> Berikan sentuhan lembut di paha bagian dalam pasangan." },
+                6: { text: "<b>[Putaran 1]</b> Tanggalkan atasan luar (jaket/cardigan/sweater) kamu." },
+                7: { text: "<b>[Putaran 1]</b> Jilat cuping telinga pasangan sambil berbisik mesra." },
+                8: { text: "<b>[Putaran 1]</b> Gigit gemas pundak pasangan." },
+                9: { text: "<b>[Putaran 1]</b> Tanggalkan baju utama (kemeja/kaos) kamu sekarang." },
+                10: { text: "<b>[Putaran 1]</b> Sentuh area sensitif luar dari luar pakaian." },
+                12: { text: "<b>[Putaran 1]</b> Ciuman turun dari kening ke bibir." },
+                13: { text: "<b>[Putaran 1]</b> Tiup lembut area leher & dada untuk memancing desahan." },
+                14: { text: "<b>[Putaran 1]</b> Lepaskan celana luar (celana panjang/rok) kamu." },
+                16: { text: "<b>[Putaran 1]</b> Berikan ciuman basah di bagian pundak dan tulang selangka." },
+                17: { text: "<b>[Putaran 1]</b> Saling usap area intim dari luar celana dalam." },
+                18: { text: "<b>[Putaran 1]</b> Sentuh dan elus bagian sensitif luar pasangan secara perlahan." },
+                19: { text: "<b>[Putaran 1]</b> Berikan pijatan punggung sensual." },
+                20: { text: "<b>[Putaran 1]</b> Lepaskan seluruh sisa pakaian luar terakhir." },
+                22: { text: "<b>[Putaran 1]</b> Jilat puting atau dada bergantian dari luar pakaian." },
+                23: { text: "<b>[Putaran 1]</b> Bisikkan kata-kata kotor menggairahkan." },
+                24: { text: "<b>[Putaran 1]</b> Ciuman basah mendalam 30 detik." },
+                26: { text: "<b>[Putaran 1]</b> Saling gesekkan tubuh secara lembut." },
+                27: { text: "<b>[Putaran 1]</b> Pijat kaki dan cium jempol kaki pasangan." },
+                28: { text: "<b>[Putaran 1]</b> Berikan pelukan erat tanpa suara selama 30 detik." },
+                29: { text: "<b>[Putaran 1]</b> Pemenang bebas menyentuh seluruh tubuh." },
+                30: { text: "<b>[Putaran 1]</b> Buka pakaian dalam bagian atas." },
+                32: { text: "<b>[Putaran 1]</b> Cium leher basah 15 detik." },
+                33: { text: "<b>[Putaran 1]</b> Buka pakaian dalam bawah." },
+                34: { text: "<b>[Putaran 1]</b> Pijat lembut bahu pasangan." },
+                36: { text: "<b>[Putaran 1]</b> Tiup lembut daun telinga pasangan." },
+                37: { text: "<b>[Putaran 1]</b> Elus rambut pasangan dengan penuh cinta." },
+                38: { text: "<b>[Putaran 1]</b> Cium punggung tangan pasangan." },
+                39: { text: "<b>[Putaran 1]</b> Telanjang bulat." }
+            },
+            2: { 
+                2: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Berikan pijatan sensual di seluruh punggung dan pinggang tanpa busana." },
+                3: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Raba, usap, dan remas perlahan bagian dada atau payudara pasangan." },
+                4: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Lepaskan sisa pakaian dalam bagian atas secara perlahan." },
+                6: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Jilat dan kecup lembut area puting atau dada pasangan secara bergantian." },
+                7: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Sentuh area intim dan sensitif pasangan menggunakan jari untuk memicu pelumas alami." },
+                8: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Lakukan oral ringan pada bagian leher, dada, hingga perut bawah pasangan." },
+                9: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Posisikan wajahmu dekat dengan alat vital pasangan dan hirup aromanya." },
+                10: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Berikan jilatan atau sentuhan hangat langsung pada alat vital pasangan selama 30 detik." },
+                12: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Saling gesekkan tubuh tanpa busana untuk merasakan panasnya gairah." },
+                13: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Lepaskan seluruh pakaian dalam bagian bawah yang tersisa." },
+                14: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Gunakan lidah untuk mengeksplorasi seluruh tubuh bagian depan pasangan." },
+                16: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Hisap lembut puting pasangan dengan tempo lambat hingga menegang." },
+                17: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Berikan stimulasi oral intens pada paha dalam dan sekitar area intim." },
+                18: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Saling jilat dan nikmati cairan pelumas alami satu sama lain." },
+                19: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Pijat lembut area bokong dan pinggul dengan sedikit minyak/lotion." },
+                20: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Jari masuk perlahan untuk merangsang bagian dalam." },
+                22: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Tiup lembut area alat vital yang sudah terbuka." },
+                23: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Gigit gemas kulit paha dalam pasangan." },
+                24: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Ciuman basah mendalam 45 detik sambil meraba seluruh tubuh." },
+                26: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Gesekan alat vital tanpa penetrasi selama 1 menit." },
+                27: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Jilatan kilat bolak-balik dari pusar ke area sensitif." },
+                28: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Saling isap jari satu sama lain dengan penuh nafsu." },
+                29: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Pemenang bebas meraba seluruh tubuh pasangan." },
+                30: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Fore play dengan jari pada area intim wanita." },
+                32: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Ciuman liar di bibir dan leher selama 20 detik." },
+                33: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Raba dada pasangan tanpa henti." },
+                34: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Jilat perut bawah pasangan." },
+                36: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Usap lembut area sensitif dengan jari basah." },
+                37: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Berikan gigitan kecil di cuping telinga." },
+                38: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Ciuman panas penuh gairah." },
+                39: { text: "🔥 <b>[Putaran 2 - Foreplay]</b> Saling memainkan alat vital dengan tangan." }
+            },
+            3: { 
+                2: { text: "💋 <b>[Putaran 3 - Posisi 1] Misionaris Klasik</b><br>Wanita berbaring telentang dengan lutut ditekuk/dibuka rileks. Pria di atas menopang tubuh dengan kedua tangan/siku. Lakukan penyatuan perlahan sambil menjaga kontak mata & ciuman bibir.", illustration: "<strong>Panduan Penetrasi:</strong> Penetrasi dasar yang sangat intim dengan tatapan mata dan ciuman mendalam." },
+                3: { text: "💋 <b>[Putaran 3 - Posisi 2] Cowgirl (Wanita di Atas)</b><br>Pria berbaring telentang. Wanita duduk menghadap ke atas pangkuan pria, memegang kendali penuh atas sudut, kedalaman, serta kecepatan ritme naik-turun.", illustration: "<strong>Panduan Penetrasi:</strong> Wanita memimpin tempo dan kedalaman sesuai kenyamanan." },
+                4: { text: "💋 <b>[Putaran 3 - Posisi 3] Doggy Style</b><br>Wanita merangkak bertumpu pada lutut dan siku dengan pinggul terangkat tinggi. Pria melakukan penetrasi dari belakang dengan tangan memegang erat pinggul.", illustration: "<strong>Panduan Penetrasi:</strong> Penetrasi dari belakang dengan cengkeraman pinggang untuk kontrol kedalaman maksimal." },
+                6: { text: "💋 <b>[Putaran 3 - Posisi 4] Spooning (Menyendok)</b><br>Kedua pasangan berbaring miring searah (satu di depan, satu di belakang) dengan kaki sedikit ditekuk. Penetrasi dari belakang dengan gerakan lambat penuh kehangatan.", illustration: "<strong>Panduan Penetrasi:</strong> Posisi miring yang sangat santai, intim, dan minim tenaga." },
+                7: { text: "💋 <b>[Putaran 3 - Posisi 5] Lotus Terkunci</b><br>Pria duduk bersila tegak di tempat tidur. Wanita duduk di pangkuan menghadap ke depan, melingkarkan kedua kaki di pinggang pria dan merangkul lehernya erat.", illustration: "<strong>Panduan Penetrasi:</strong> Penetrasi sambil berpelukan erat, mengunci kestabilan tubuh." },
+                8: { text: "💋 <b>[Putaran 3 - Posisi 6] Bridge (Jembatan)</b><br>Wanita berbaring di tepi kasur dengan bantal di bawah punggung, mengangkat pinggul tinggi-tinggi sementara kaki menapak di lantai/dipegang pria.", illustration: "<strong>Panduan Penetrasi:</strong> Sudut panggul terangkat tinggi memudahkan akses penetrasi dalam." },
+                9: { text: "💋 <b>[Putaran 3 - Posisi 7] Standing (Berdiri)</b><br>Punggung wanita bersandar di dinding kamar. Wanita melingkarkan paha di pinggang pria, sementara pria mengangkat dan menopang paha wanita.", illustration: "<strong>Panduan Penetrasi:</strong> Penetrasi berdiri dengan sandaran dinding yang sangat bergairah." },
+                10: { text: "💋 <b>[Putaran 3 - Posisi 8] Reverse Cowgirl</b><br>Pria berbaring telentang. Wanita di atas mengangkang namun membelakangi wajah pria (menghadap ke kaki kasur).", illustration: "<strong>Panduan Penetrasi:</strong> Wanita di atas dengan arah berlawanan, memberikan sensasi sudut gesekan unik." },
+                12: { text: "💋 <b>[Putaran 3 - Posisi 9] Y-Shape / Edge of Bed</b><br>Wanita berbaring tepat di tepi tempat tidur dengan kedua kaki diangkat dan diletakkan di atas bahu pria yang berdiri/berlutut di depannya.", illustration: "<strong>Panduan Penetrasi:</strong> Membuka paha lebar untuk sudut penetrasi yang sangat dalam." },
+                13: { text: "💋 <b>[Putaran 3 - Posisi 10] Kombinasi Cepat</b><br>Percepat tempo dengan melakukan transisi kilat secara bergantian antara posisi Misionaris dan Doggy Style dalam tempo tinggi.", illustration: "<strong>Panduan Penetrasi:</strong> Transisi cepat antar posisi untuk membakar puncak gairah." },
+                14: { text: "💋 <b>[Putaran 3 - Posisi 11] The Butterfly</b><br>Wanita berbaring dengan paha dibuka lebar dan lutut ditekuk ke dada. Pria mendekat di antara kedua kaki wanita untuk penetrasi maksimal.", illustration: "<strong>Panduan Penetrasi:</strong> Posisi kupu-kupu dengan kontak mata intens dan bukaan paha maksimal." },
+                16: { text: "💋 <b>[Putaran 3 - Posisi 12] Side-Saddle Cowgirl</b><br>Pria berbaring telentang. Wanita duduk di atas tubuh pria secara menyamping (menghadap ke salah satu sisi samping).", illustration: "<strong>Panduan Penetrasi:</strong> Gesekan horizontal menyamping yang memberikan sensasi berbeda." },
+                17: { text: "💋 <b>[Putaran 3 - Posisi 13] The Lazy Dog</b><br>Variasi doggy style di mana siku dan dada wanita bersandar santai ke kasur dengan pinggul tetap terangkat di belakang.", illustration: "<strong>Panduan Penetrasi:</strong> Posisi merangkak yang lebih santai namun tetap dalam." },
+                18: { text: "💋 <b>[Putaran 3 - Posisi 14] Seated Wheelbarrow</b><br>Pria duduk tegak di kursi/tepi kasur. Wanita duduk di pangkuan, sementara pria memegang dan mengangkat kedua paha wanita.", illustration: "<strong>Panduan Penetrasi:</strong> Pria duduk menopang penuh tubuh wanita dari kursi." },
+                19: { text: "💋 <b>[Putaran 3 - Posisi 15] The Lazy V</b><br>Letakkan bantal tebal di bawah pinggul wanita yang berbaring telentang untuk membentuk huruf V terbalik yang mengangkat panggul.", illustration: "<strong>Panduan Penetrasi:</strong> Bantuan bantal untuk sudut dorongan dalam yang lebih mudah." },
+                20: { text: "💋 <b>[Putaran 3 - Posisi 16] The Cradled Anchor</b><br>Posisi menyendok rapat di mana kaki pasangan saling mengunci dan tubuh saling berpelukan erat tanpa celah.", illustration: "<strong>Panduan Penetrasi:</strong> Penyelarasan tubuh rapat penuh keintiman dan pelukan." },
+                22: { text: "💋 <b>[Putaran 3 - Posisi 17] The Standing Edge</b><br>Pria berdiri di lantai sementara wanita berbaring rileks tepat di ujung tepi kasur.", illustration: "<strong>Panduan Penetrasi:</strong> Akses penetrasi praktis di tepi tempat tidur." },
+                23: { text: "💋 <b>[Putaran 3 - Posisi 18] The Interlocked Scissors</b><br>Kedua pasangan berbaring menyamping saling berhadapan dengan kaki yang saling menyilang dan mengunci seperti gunting.", illustration: "<strong>Panduan Penetrasi:</strong> Kaki saling mengunci erat saat berbaring menyamping." },
+                24: { text: "💋 <b>[Putaran 3 - Posisi 19] The Amazon</b><br>Wanita menunggangi tubuh pria dari atas sambil menghadap penuh ke wajah pria, merangkul erat dan mengontrol kecepatan ritme.", illustration: "<strong>Panduan Penetrasi:</strong> Cowgirl berhadapan wajah untuk ciuman dan tatapan penuh cinta." },
+                26: { text: "💋 <b>[Putaran 3 - Posisi 20] Rotasi Kilat Bebas</b><br>Bebaskan diri untuk berganti ke posisi favorit kalian secara cepat dan spontan selama 30 detik tanpa henti.", illustration: "<strong>Panduan Penetrasi:</strong> Kebebasan bereksplorasi ganti posisi dengan cepat." },
+                27: { text: "💋 <b>[Putaran 3 - Posisi 21] Penetrasi Dalam & Lambat</b><br>Kembali ke posisi Misionaris dengan gerakan yang sangat lambat, penuh penghayatan, dan dorongan dalam.", illustration: "<strong>Panduan Penetrasi:</strong> Menikmati setiap inci gesekan dengan tempo lambat dan dalam." },
+                28: { text: "💋 <b>[Putaran 3 - Posisi 22] Tempo Cepat Menuju Puncak</b><br>Gunakan posisi Doggy Style atau Cowgirl dengan peningkatan kecepatan tempo secara bertahap hingga napas memburu.", illustration: "<strong>Panduan Penetrasi:</strong> Pacu kecepatan tinggi untuk memicu klimaks bersama." },
+                29: { text: "💋 <b>[Putaran 3 - Posisi 23] Sentuhan Puncak Terakhir</b><br>Lakukan detik-detik persiapan akhir dengan kombinasi sentuhan tangan pada area sensitif luar dan dalam.", illustration: "<strong>Panduan Penetrasi:</strong> Stimulasi akhir penutup sebelum orgasme." },
+                30: { text: "👑 <b>[Putaran 3 - Klimaks Bersama!]</b> Capai puncak orgasme bersamaan dalam pelukan tererat yang menyatukan seluruh raga!", illustration: "<strong>Panduan Penetrasi:</strong> Penyatuan total menuju klimaks bersama." },
+                32: { text: "💋 <b>[Putaran 3]</b> Variasi posisi sesukamu dengan panduan penetrasi bebas yang paling disukai.", illustration: "<strong>Panduan Penetrasi:</strong> Eksplorasi bebas gaya pasangan." },
+                33: { text: "💋 <b>[Putaran 3]</b> Posisi misionaris penuh ciuman hangat dan pelukan erat.", illustration: "<strong>Panduan Penetrasi:</strong> Misionaris romantis berpusat pada ciuman." },
+                34: { text: "💋 <b>[Putaran 3]</b> Posisi menyamping penuh kehangatan dan kenyamanan.", illustration: "<strong>Panduan Penetrasi:</strong> Penetrasi rileks berbaring menyamping." },
+                36: { text: "💋 <b>[Putaran 3]</b> Posisi mengangkang sensual dengan bukaan paha lebar.", illustration: "<strong>Panduan Penetrasi:</strong> Akses sudut terbuka lebar." },
+                37: { text: "💋 <b>[Putaran 3]</b> Posisi merangkak menggairahkan dengan tempo ritmis.", illustration: "<strong>Panduan Penetrasi:</strong> Doggy style ritmis penuh gairah." },
+                38: { text: "💋 <b>[Putaran 3]</b> Posisi duduk berhadapan saling merangkul mesra.", illustration: "<strong>Panduan Penetrasi:</strong> Penetrasi posisi duduk berhadapan." },
+                39: { text: "💋 <b>[Putaran 3]</b> Posisi penutup sebelum klimaks bersama.", illustration: "<strong>Panduan Penetrasi:</strong> Detik-detik penutup menuju orgasme." }
+            }
+        };
+
+        const chanceCards = [
+            { title: "🎁 Kesempatan: Undian Panas", desc: "Anda beruntung! Dapatkan tambahan +150 Poin Gairah untuk modal beli petak, serta cium bibir pasangan.", reward: 150 },
+            { title: "🎁 Kesempatan: Denda Gairah", desc: "Bayar denda 100 Poin Gairah ke bank karena melanggar aturan intim, lalu berikan gigitan gemas di leher.", reward: -100 },
+            { title: "🎁 Kesempatan: Jalan Pintas Romantis", desc: "Maju cepat 3 langkah langsung ke depan dan nikmati sentuhan spontan!", move: 3 },
+            { title: "🎁 Kesempatan: Investasi Cinta", desc: "Dapatkan tambahan +100 Poin Gairah dan peluk erat pasangan selama 30 detik.", reward: 100 },
+            { title: "🎁 Kesempatan: Pajak Properti Dadakan", desc: "Bayar sumbangan 80 Poin Gairah untuk kas asmara, lalu berikan ciuman basah di pipi.", reward: -80 },
+            { title: "🎁 Kesempatan: Hukuman Rayuan", desc: "Mundur 1 langkah karena gugup, lalu ucapkan 3 kalimat pujian paling romantis.", move: -1 },
+            { title: "🎁 Kesempatan: Jackpot Gairah", desc: "Bank memberikan bonus modal besar +200 Poin Gairah untuk membeli petak impianmu!", reward: 200 },
+            { title: "🎁 Kesempatan: Ujian Kesabaran", desc: "Bayar denda 50 Poin Gairah atau biarkan pasangan mencubit hidungmu dengan gemas.", reward: -50 },
+            { title: "🎁 Kesempatan: Dorongan Mesra", desc: "Maju 2 langkah ke depan dan bisikkan kalimat nakal ke telinga pasangan.", move: 2 },
+            { title: "🎁 Kesempatan: Salah Langkah", desc: "Mundur 2 langkah ke belakang, lalu berikan ciuman lembut di punggung tangan pasangan.", move: -2 },
+            { title: "🎁 Kesempatan: Bonus Spesial Pemilik", desc: "Dapatkan tambahan +120 Poin Gairah berkat pesona rayuanmu yang mematikan.", reward: 120 },
+            { title: "🎁 Kesempatan: Sanksi Kedisiplinan", desc: "Bayar denda 120 Poin Gairah ke bank atau biarkan pasangan menepuk bokongmu 5 kali.", reward: -120 }
+        ];
+
+        const communityCards = [
+            { title: "💌 Dana Umum: Pajak Asmara", desc: "Bayar sumbangan gairah sebesar 80 Poin Gairah ke bank, lalu berikan tatapan mata 20 detik.", reward: -80 },
+            { title: "💌 Dana Umum: Bonus Malam", desc: "Mendapat bonus +150 Poin Gairah karena keromantisanmu meningkat pesat!", reward: 150 },
+            { title: "💌 Dana Umum: Pelukan Hangat", desc: "Berikan pelukan erat selama 45 detik tanpa suara sambil menikmati kehangatan.", reward: 50 },
+            { title: "💌 Dana Umum: Pijatan Spontan", desc: "Berikan pijatan lembut di pundak pasangan selama 1 menit penuh.", reward: 100 },
+            { title: "💌 Dana Umum: Dividen Properti", desc: "Mendapat bagi hasil kas cinta sebesar +120 Poin Gairah!", reward: 120 },
+            { title: "💌 Dana Umum: Donasi Gairah", desc: "Bayar pajak cinta 60 Poin Gairah ke bank dan kecup kening pasangan.", reward: -60 },
+            { title: "💌 Dana Umum: Bisikkan Fantasi", desc: "Bisikkan sebuah fantasi tersembunyi ke telinga pasangan dengan penuh gairah.", reward: 90 },
+            { title: "💌 Dana Umum: Kolektor Cinta", desc: "Saling memberikan pujian fisik satu sama lain, ambil bonus +100 Poin Gairah.", reward: 100 },
+            { title: "💌 Dana Umum: Subsidi Kasur", desc: "Bank memberikan suntikan dana +130 Poin Gairah untuk meningkatkan kenyamanan malam.", reward: 130 },
+            { title: "💌 Dana Umum: Kontribusi Romantis", desc: "Sumbangkan 70 Poin Gairah ke bank, lalu beri ciuman hangat di pipi kiri dan kanan.", reward: -70 },
+            { title: "💌 Dana Umum: Hadiah Kejutan", desc: "Dapatkan tambahan +180 Poin Gairah secara mendadak!", reward: 180 },
+            { title: "💌 Dana Umum: Denda Keterlambatan", desc: "Bayar denda 90 Poin Gairah karena terlalu lama merespons rayuan pasangan.", reward: -90 }
+        ];
+
+        function getMonopolyGridCoord(num) {
+            if (num >= 1 && num <= 11) {
+                return { r: 9, c: 11 - num };
+            } else if (num > 11 && num <= 21) {
+                return { r: 9 - (num - 11), c: 0 };
+            } else if (num > 21 && num <= 31) {
+                return { r: 0, c: num - 21 };
+            } else if (num > 31 && num <= 40) {
+                return { r: num - 31, c: 9 };
+            }
+            return { r: 9, c: 0 };
+        }
+
+        function getCellSilhouetteSVG(type) {
+            if (type === 'chance' || type === 'community') {
+                return `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="#800f2f"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+            } else if (type === 'jail') {
+                return `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="#800f2f"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>`;
+            } else {
+                return `<svg viewBox="0 0 24 24" width="100%" height="100%" fill="#800f2f"><path d="M12 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm4 10.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-8 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm8 3h-2.5c-.83 0-1.5.67-1.5 1.5V21h-2v-3c0-.83-.67-1.5-1.5-1.5H8c-2.21 0-4 1.79-4 4v1h16v-1c0-2.21-1.79-4-4-4z"/></svg>`;
+            }
+        }
+
+        function createMonopolyBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+
+            let cellLookup = {};
+            for (let num = 1; num <= 40; num++) {
+                let coord = getMonopolyGridCoord(num);
+                cellLookup[`${coord.r}-${coord.c}`] = num;
+            }
+
+            for (let row = 0; row < 10; row++) {
+                for (let col = 0; col < 10; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    let cellNum = cellLookup[`${row}-${col}`];
+
+                    if (cellNum) {
+                        cell.id = `cell-${cellNum}`;
+                        if ((row + col) % 2 === 1) cell.classList.add('alt');
+
+                        let icon = '';
+                        let tileType = 'normal';
+                        if (monopolyTiles[cellNum]) {
+                            tileType = monopolyTiles[cellNum].type;
+                            icon = tileType === 'chance' ? '🎁' : (tileType === 'community' ? '💌' : (cellNum === 40 ? '👑' : '🔥'));
+                        } else if (monopolyLapContent[1][cellNum]) {
+                            icon = '💋';
+                        }
+
+                        let ownerBadgeHTML = '';
+                        if (propertyMap[cellNum]) {
+                            let prop = propertyMap[cellNum];
+                            let ownerClass = prop.owner === 0 ? 'owner-p1' : 'owner-p2';
+                            let stars = '⭐'.repeat(prop.level);
+                            ownerBadgeHTML = `<div class="cell-owner-indicator ${ownerClass}">${prop.owner === 0 ? '♂' : '♀'} ${stars}</div>`;
+                        }
+
+                        let silhouetteHTML = `<div class="cell-silhouette">${getCellSilhouetteSVG(tileType)}</div>`;
+
+                        cell.innerHTML = `<span>${cellNum}</span>${silhouetteHTML}${ownerBadgeHTML}<div class="cell-icon">${icon}</div><div class="tokens-container" id="tokens-${cellNum}"></div>`;
+                    } else {
+                        cell.className = 'cell center-board';
+                        if (row === 4 && col === 4) {
+                            cell.innerHTML = `<div style="font-size:0.55rem; color:#d90429; font-weight:bold; text-align:center; width:100%;">MONOPOLI<br>3 PUTARAN 🔥</div>`;
+                        }
+                    }
+                    boardEl.appendChild(cell);
+                }
+            }
+            const svg = document.getElementById('board-svg');
+            svg.innerHTML = '';
+            updateTokens();
+            updateCenterStatusSummary();
+        }
+
+        function updateCenterStatusSummary() {
+            if (!isMonopolyMode) return;
+            let p1Count = 0;
+            let p2Count = 0;
+            for (let tile in propertyMap) {
+                if (propertyMap[tile].owner === 0) p1Count++;
+                else if (propertyMap[tile].owner === 1) p2Count++;
+            }
+            let p1El = document.getElementById('p1-prop-summary');
+            let p2El = document.getElementById('p2-prop-summary');
+            if (p1El) p1El.innerText = `❤ Pria: ${p1Count} Petak`;
+            if (p2El) p2El.innerText = `💙 Wanita: ${p2Count} Petak`;
+        }
+
+        function updateTurnPermissions() {
+            if (!isOnlineLDR) return;
+            const diceBtn = document.getElementById('dice-btn');
+            let myPlayerIndex = (myRole === 'p1') ? 0 : 1;
+            
+            if (currentPlayer === myPlayerIndex) {
+                diceBtn.style.opacity = '1';
+                diceBtn.style.pointerEvents = 'auto';
+            } else {
+                diceBtn.style.opacity = '0.5';
+                diceBtn.style.pointerEvents = 'none';
+            }
+        }
+
+        function updateTokens() {
+            let maxB = isMonopolyMode ? 40 : BOARD_SIZE;
+            for (let i = 1; i <= maxB; i++) {
+                let el = document.getElementById(`tokens-${i}`);
+                if (el) el.innerHTML = '';
+            }
+
+            positions.forEach((pos, idx) => {
+                const container = document.getElementById(`tokens-${pos}`);
+                if (container) {
+                    const token = document.createElement('div');
+                    token.className = `token token-${idx + 1}`;
+                    token.innerText = idx === 0 ? '♂' : '♀';
+                    container.appendChild(token);
+                }
+            });
+
+            let p1MoneyEl = document.getElementById('p1-money');
+            let p2MoneyEl = document.getElementById('p2-money');
+            let p1LapEl = document.getElementById('p1-lap');
+            let p2LapEl = document.getElementById('p2-lap');
+
+            if (p1MoneyEl) p1MoneyEl.innerText = playerMoney[0];
+            if (p2MoneyEl) p2MoneyEl.innerText = playerMoney[1];
+            if (p1LapEl) p1LapEl.innerText = playerLaps[0];
+            if (p2LapEl) p2LapEl.innerText = playerLaps[1];
+        }
+
+        function rollDice() {
+            if (isRolling || isGameOver) return;
+            
+            if (isOnlineLDR) {
+                let myPlayerIndex = (myRole === 'p1') ? 0 : 1;
+                if (currentPlayer !== myPlayerIndex) {
+                    alert("Bukan giliranmu!");
+                    return;
+                }
+            }
+
+            if (isMonopolyMode && lapFinishedBy.includes(currentPlayer)) {
+                let winnerIdx = lapFinishedBy[0];
+                let loserIdx = lapFinishedBy[1];
+                if (currentPlayer === winnerIdx && loserIdx === null) {
+                    alert(`Kamu sudah lebih dulu mencapai akhir Putaran ${playerLaps[currentPlayer]}! Giliran dialihkan ke pasanganmu.`);
+                } else {
+                    alert("Kamu sudah menyelesaikan putaran ini. Giliran dialihkan.");
+                }
+                switchTurn();
+                return;
+            }
+
+            if (isMonopolyMode && isInJail[currentPlayer]) {
+                showModal("🚨 Terjebak di Penjara Gairah!", `<b>${playerNames[currentPlayer]}</b> sedang berada di dalam Penjara!<br><br><b>Pilih Cara Keluar:</b><br>1. Wajib oral pasangan 30-60 detik.<br>2. Bayar tebusan <b>150 Poin Gairah</b> untuk bebas!`, 30, "<strong>Opsi Bayar:</strong> Klik tombol tebus jika poin cukup.", true);
+                return;
+            }
+
+            isRolling = true;
+            playDiceSound();
+            document.getElementById('dice-result').innerText = `🎲...`;
+            
+            setTimeout(() => {
+                let diceVal = Math.floor(Math.random() * 6) + 1;
+                document.getElementById('dice-result').innerText = `Dadu: ${diceVal}`;
+                
+                let maxBoard = isMonopolyMode ? 40 : BOARD_SIZE;
+                let current = positions[currentPlayer];
+                let tentativeTarget = current + diceVal;
+                
+                let target = tentativeTarget;
+                if (tentativeTarget > maxBoard) {
+                    let overflow = tentativeTarget - maxBoard;
+                    target = maxBoard - overflow;
+                }
+
+                if (isOnlineLDR && conn && conn.open) {
+                    conn.send({
+                        type: 'roll-dice',
+                        player: currentPlayer,
+                        steps: diceVal,
+                        targetPos: target
+                    });
+                }
+
+                executeMove(currentPlayer, diceVal, target);
+            }, 300);
+        }
+
+        function executeMove(p, steps, target) {
+            let interval = setInterval(() => {
+                if (positions[p] < target) {
+                    positions[p]++;
+                    playStepSound();
+                    updateTokens();
+                } else if (positions[p] > target) {
+                    positions[p]--;
+                    playStepSound();
+                    updateTokens();
+                } else {
+                    clearInterval(interval);
+                    let finalPos = positions[p];
+                    
+                    if (isMonopolyMode) {
+                        handleMonopolyLanding(p, finalPos);
+                    } else {
+                        checkWin();
+                    }
+                }
+            }, 180);
+        }
+
+        function handleMonopolyLanding(p, pos) {
+            setTimeout(() => {
+                let maxBoard = 40;
+                let activeLap = playerLaps[p];
+                let challengeTimer = activeLap === 1 ? 45 : (activeLap === 2 ? 60 : 120);
+
+                if (pos === maxBoard) {
+                    if (lapFinishedBy[0] === null) {
+                        lapFinishedBy[0] = p;
+                        showModal("👑 Tiba Lebih Dulu!", `<b>${playerNames[p]}</b> berhasil mencapai garis akhir Putaran ${playerLaps[p]} lebih dulu!<br><br>Giliran dialihkan ke pasanganmu untuk menyelesaikan putarannya.`, 0, "", false, false);
+                        return;
+                    } else if (lapFinishedBy[0] !== p && lapFinishedBy[1] === null) {
+                        lapFinishedBy[1] = p;
+                        let winner = lapFinishedBy[0];
+                        let loser = p;
+
+                        if (playerLaps[winner] < 3) {
+                            isGameOver = true;
+                            showMassagePenaltyModal(winner, loser);
+                        } else {
+                            isGameOver = true;
+                            showEndGameStatsModal();
+                        }
+                        return;
+                    }
+                }
+
+                if (pos === 1) {
+                    playerMoney[p] += 100;
+                    playCoinSound();
+                    updateTokens();
+                    showModal("🎯 START", `<b>${playerNames[p]}</b> mendarat di garis START!<br><br>💰 Mendapat tambahan <b>+100 Poin Gairah</b>!`, challengeTimer, "");
+                    checkWin();
+                    return;
+                }
+
+                if (pos === 11 || pos === 31) {
+                    isInJail[p] = true;
+                    playSnakeSound();
+                    showModal("🚨 Penjara Gairah (Wajib Oral)", `<b>${playerNames[p]}</b> mendarat di Kotak Penjara!<br><br>🔒 <b>Hukuman Wajib:</b> Lakukan oral 30-60 detik ATAU bayar tebusan <b>150 Poin Gairah</b>!`, 45, "<strong>Aturan Keluar:</strong> Lakukan oral atau tebus dengan poin.", false, false, true);
+                    checkWin();
+                    return;
+                }
+
+                if (pos === 5 || pos === 25) {
+                    let card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
+                    if (card.reward) {
+                        playerMoney[p] += card.reward;
+                        if (card.reward > 0) playCoinSound();
+                        if (playerMoney[p] < 0) playerMoney[p] = 0;
+                    }
+                    updateTokens();
+                    playLadderSound();
+                    showModal(card.title, card.desc, challengeTimer, "<strong>Kartu Kesempatan Monopoli</strong>");
+                    
+                    if (card.move) {
+                        setTimeout(() => executeCardMove(p, card.move), 500);
+                    } else {
+                        checkWin();
+                    }
+                    return;
+                }
+
+                if (pos === 15 || pos === 35) {
+                    let card = communityCards[Math.floor(Math.random() * communityCards.length)];
+                    if (card.reward) {
+                        playerMoney[p] += card.reward;
+                        if (card.reward > 0) playCoinSound();
+                        if (playerMoney[p] < 0) playerMoney[p] = 0;
+                    }
+                    updateTokens();
+                    playLadderSound();
+                    showModal(card.title, card.desc, challengeTimer, "<strong>Kartu Dana Umum Monopoli</strong>");
+                    
+                    if (card.move) {
+                        setTimeout(() => executeCardMove(p, card.move), 500);
+                    } else {
+                        checkWin();
+                    }
+                    return;
+                }
+
+                let lapContentList = monopolyLapContent[activeLap] || monopolyLapContent[1];
+
+                if (lapContentList[pos]) {
+                    playStepSound();
+                    let content = lapContentList[pos];
+                    gameStats.challengesDone[p]++;
+                    
+                    let propInfo = propertyMap[pos];
+                    let priceToBuy = 80;
+                    let upgradePrice = 60;
+
+                    if (!propInfo) {
+                        if (playerMoney[p] >= priceToBuy) {
+                            showBuyPropertyPrompt(p, pos, priceToBuy, content, challengeTimer);
+                            return;
+                        } else {
+                            playerMoney[p] += 20;
+                            playCoinSound();
+                            updateTokens();
+                            showModal(`💋 Zona Gairah [Putaran ${activeLap}] (Petak ${pos})`, `${content.text}<br><br>🎁 Poinmu kurang untuk membeli petak (${priceToBuy} Poin). Dapat +20 Poin Gairah!`, challengeTimer, content.illustration || "");
+                            checkWin();
+                            return;
+                        }
+                    } else if (propInfo.owner === p) {
+                        if (propInfo.level < 3 && playerMoney[p] >= upgradePrice) {
+                            showUpgradePropertyPrompt(p, pos, upgradePrice, content, challengeTimer);
+                            return;
+                        } else {
+                            playerMoney[p] += 20;
+                            playCoinSound();
+                            updateTokens();
+                            showModal(`💋 Zona Gairah [Putaran ${activeLap}] (Petak ${pos})`, `${content.text}<br><br>🏠 Ini propertimu (Level ${propInfo.level}). Mendapat +20 Poin Gairah!`, challengeTimer, content.illustration || "");
+                            checkWin();
+                            return;
+                        }
+                    } else {
+                        let ownerIdx = propInfo.owner;
+                        let rentFee = propInfo.level * 40;
+                        playerMoney[p] -= rentFee;
+                        if (playerMoney[p] < 0) playerMoney[p] = 0;
+                        playerMoney[ownerIdx] += rentFee;
+                        playCoinSound();
+                        updateTokens();
+                        createMonopolyBoard();
+
+                        showModal(`⚠️ Sewa Properti Lawan! (Petak ${pos})`, `${content.text}<br><br>💸 <b>${playerNames[p]}</b> mendarat di properti milik <b>${playerNames[ownerIdx]}</b> (Level ${propInfo.level})!<br>Wajib bayar sewa <b>${rentFee} Poin Gairah</b> ke pemilik!`, challengeTimer, "<strong>Sewa Properti:</strong> Poin berpindah ke pemilik petak.");
+                        checkWin();
+                        return;
+                    }
+                }
+
+                checkWin();
+            }, 300);
+        }
+
+        function showBuyPropertyPrompt(p, pos, price, content, timerSec) {
+            document.getElementById('modal-title').innerHTML = `🏡 Beli Petak Zona Gairah (${pos})?`;
+            document.getElementById('modal-text').innerHTML = `
+                ${content.text}<br><br>
+                💰 Petak ini belum dimiliki siapapun.<br>
+                Harga Pembelian: <b>${price} Poin Gairah</b>.<br><br>
+                Apakah <b>${playerNames[p]}</b> ingin membelinya?
+            `;
+            document.getElementById('modal-illustration-container').innerHTML = content.illustration ? `<div class="modal-illustration">${content.illustration}</div>` : '';
+            document.getElementById('challenge-modal').style.display = 'flex';
+            document.getElementById('timer-box').style.display = 'none';
+
+            const btnGroup = document.getElementById('modal-btn-container');
+            btnGroup.innerHTML = `
+                <button class="btn-action" onclick="buyPropertyAction(${p}, ${pos}, ${price}, '${encodeURIComponent(content.text)}', ${timerSec})">✔ Beli Petak (-${price} Poin)</button>
+                <button class="btn-skip" onclick="skipAndShowTimer(${p}, '${encodeURIComponent(content.text)}', ${timerSec})">Lewati Pembelian (+30 Poin) ⏭</button>
+            `;
+        }
+
+        function buyPropertyAction(p, pos, price, encodedText, timerSec) {
+            if (playerMoney[p] >= price) {
+                playerMoney[p] -= price;
+                propertyMap[pos] = { owner: p, level: 1 };
+                gameStats.propertiesBought[p]++;
+                playCoinSound();
+                updateTokens();
+                createMonopolyBoard();
+            }
+            let decodedText = decodeURIComponent(encodedText);
+            showModal(`💋 Zona Gairah (Petak ${pos}) - Beli`, `${decodedText}<br><br>🏡 <b>Berhasil Membeli Petak!</b> Silakan nikmati tantangan intim di bawah ini:`, timerSec, "");
+        }
+
+        function showUpgradePropertyPrompt(p, pos, price, content, timerSec) {
+            let currentLevel = propertyMap[pos].level;
+            document.getElementById('modal-title').innerHTML = `⬆ Upgrade Properti Petak (${pos})?`;
+            document.getElementById('modal-text').innerHTML = `
+                ${content.text}<br><br>
+                🏠 Properti ini milikmu (Level ${currentLevel} ➔ Level ${currentLevel + 1}).<br>
+                Biaya Upgrade: <b>${price} Poin Gairah</b>.
+            `;
+            document.getElementById('modal-illustration-container').innerHTML = content.illustration ? `<div class="modal-illustration">${content.illustration}</div>` : '';
+            document.getElementById('challenge-modal').style.display = 'flex';
+            document.getElementById('timer-box').style.display = 'none';
+
+            const btnGroup = document.getElementById('modal-btn-container');
+            btnGroup.innerHTML = `
+                <button class="btn-action" onclick="upgradePropertyAction(${p}, ${pos}, ${price}, '${encodeURIComponent(content.text)}', ${timerSec})">⬆ Upgrade Level (-${price} Poin)</button>
+                <button class="btn-skip" onclick="skipAndShowTimer(${p}, '${encodeURIComponent(content.text)}', ${timerSec})">Lewati Upgrade (+30 Poin) ⏭</button>
+            `;
+        }
+
+        function upgradePropertyAction(p, pos, price, encodedText, timerSec) {
+            if (playerMoney[p] >= price) {
+                playerMoney[p] -= price;
+                propertyMap[pos].level += 1;
+                playCoinSound();
+                updateTokens();
+                createMonopolyBoard();
+            }
+            let decodedText = decodeURIComponent(encodedText);
+            showModal(`💋 Zona Gairah (Petak ${pos}) - Upgrade`, `${decodedText}<br><br>⬆ <b>Berhasil Upgrade Properti!</b> Silakan nikmati tantangan intim di bawah ini:`, timerSec, "");
+        }
+
+        function skipAndShowTimer(p, encodedText, timerSec) {
+            playerMoney[p] += 30;
+            playCoinSound();
+            updateTokens();
+
+            let decodedText = decodeURIComponent(encodedText);
+            showModal(`💋 Zona Gairah (Petak)`, `${decodedText}<br><br>🎁 <i>Pembelian/Upgrade dilewati, tapi Anda menjalankan tantangan!</i><br>Dapat bonus **+30 Poin Gairah**! Silakan nikmati tantangan intim berikut:`, timerSec, "");
+        }
+
+        function executeCardMove(p, steps) {
+            let maxBoard = 40;
+            let target = positions[p] + steps;
+            if (target > maxBoard) target = maxBoard;
+            if (target < 1) target = 1;
+            executeMove(p, Math.abs(steps), target);
+        }
+
+        function showMassagePenaltyModal(winnerIdx, loserIdx) {
+            let winnerName = playerNames[winnerIdx];
+            let loserName = playerNames[loserIdx];
+            let nextLap = playerLaps[winnerIdx] + 1;
+            let levelTitle = nextLap === 2 ? "🔥 Hukuman Pijat 2 Menit ➔ Naik ke Putaran 2 (Foreplay)" : "💋 Hukuman Pijat 2 Menit ➔ Naik ke Putaran 3 (Variasi Posisi)";
+
+            document.getElementById('modal-title').innerHTML = levelTitle;
+            document.getElementById('modal-text').innerHTML = `
+                🏁 <b>${winnerName}</b> tiba lebih dulu dan memenangkan putaran ini!<br>
+                😢 <b>${loserName}</b> tiba belakangan dan kalah.<br><br>
+                💆‍♂ <b>Hukuman:</b> ${loserName} wajib memijat ${winnerName} selama **2 menit** penuh sebelum papan naik ke tahap berikutnya!
+            `;
+            document.getElementById('modal-illustration-container').innerHTML = '';
+            document.getElementById('challenge-modal').style.display = 'flex';
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            const timerBox = document.getElementById('timer-box');
+            const btnGroup = document.getElementById('modal-btn-container');
+
+            currentTimerSeconds = 120;
+            let m = Math.floor(currentTimerSeconds / 60);
+            let s = currentTimerSeconds % 60;
+            timerBox.style.display = 'block';
+            timerBox.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+
+            btnGroup.innerHTML = `
+                <button class="btn-start-timer" onclick="startMassageTimerAndUpgrade(${nextLap})">▶ Mulai Timer Pijat (2 Menit)</button>
+            `;
+        }
+
+        function startMassageTimerAndUpgrade(targetLap) {
+            const timerBox = document.getElementById('timer-box');
+            const btnGroup = document.getElementById('modal-btn-container');
+            
+            btnGroup.innerHTML = `<button class="btn-skip" onclick="proceedToNextLap(${targetLap})">Lewati / Lanjut ⏭</button>`;
+
+            let timeLeft = currentTimerSeconds;
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    let min = Math.floor(timeLeft / 60);
+                    let sec = timeLeft % 60;
+                    timerBox.innerText = min > 0 ? `${min}:${sec < 10 ? '0' : ''}${sec}` : `${timeLeft}s`;
+                } else {
+                    timerBox.innerText = "Waktu Pijat Selesai! 🎉";
+                    clearInterval(countdownInterval);
+                    playAlarmSound();
+                    btnGroup.innerHTML = `<button class="btn-action" onclick="proceedToNextLap(${targetLap})">Lanjut ke Putaran Berikutnya ✨</button>`;
+                }
+            }, 1000);
+        }
+
+        function proceedToNextLap(targetLap) {
+            closeModal();
+            positions = [1, 1];
+            playerLaps = [targetLap, targetLap];
+            lapFinishedBy = [null, null];
+            isGameOver = false;
+            updateTokens();
+            alert(`✨ Selamat datang di Putaran ${targetLap}! Papan telah disesuaikan dengan tantangan baru.`);
+        }
+
+        function showEndGameStatsModal() {
+            let p1Title = playerMoney[0] >= playerMoney[1] ? "👑 Raja Dominasi Asmara" : "💖 Ratu Penggoda Ulung";
+            let p2Title = playerMoney[1] >= playerMoney[0] ? "👑 Raja Dominasi Asmara" : "💖 Ratu Penggoda Ulung";
+
+            document.getElementById('modal-title').innerHTML = "📊 Statistik Malam Romantis";
+            document.getElementById('modal-text').innerHTML = `
+                Keduabelah pihak sukses menuntaskan 3 Putaran Monopoli Gairah dengan luar biasa!<br>
+                Berikut adalah ringkasan performa kalian malam ini:
+                
+                <div class="stats-box">
+                  <b>❤ Pria (Merah):</b><br>
+                  • Sisa Poin Gairah: <b>${playerMoney[0]} Poin</b><br>
+                  • Properti Dikuasai: <b>${gameStats.propertiesBought[0]} Petak</b><br>
+                  • Tantangan Diselesaikan: <b>${gameStats.challengesDone[0]} Misi</b><br>
+                  • Gelar: <i>${p1Title}</i>
+                </div>
+
+                <div class="stats-box">
+                  <b>💙 Wanita (Biru):</b><br>
+                  • Sisa Poin Gairah: <b>${playerMoney[1]} Poin</b><br>
+                  • Properti Dikuasai: <b>${gameStats.propertiesBought[1]} Petak</b><br>
+                  • Tantangan Diselesaikan: <b>${gameStats.challengesDone[1]} Misi</b><br>
+                  • Gelar: <i>${p2Title}</i>
+                </div>
+                
+                <b>🔥 Malam ini ditutup dengan Klimaks Bersama dalam pelukan tererat!</b>
+            `;
+            document.getElementById('modal-illustration-container').innerHTML = '';
+            document.getElementById('challenge-modal').style.display = 'flex';
+            document.getElementById('timer-box').style.display = 'none';
+
+            const btnGroup = document.getElementById('modal-btn-container');
+            btnGroup.innerHTML = isOnlineLDR && !isHost ? `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Menunggu Host menutup game...</p>` : `<button class="btn-action" onclick="backToLobby()">🏠 Kembali ke Lobi Utama</button>`;
+        }
+
+        function payJailBail() {
+            if (playerMoney[currentPlayer] >= 150) {
+                playerMoney[currentPlayer] -= 150;
+                playCoinSound();
+                isInJail[currentPlayer] = false;
+                updateTokens();
+                alert("✨ Anda berhasil membayar tebusan 150 Poin Gairah! Anda sekarang bebas dari penjara.");
+                closeModal();
+            } else {
+                alert("❌ Poin Gairah Anda tidak cukup untuk menebus! Anda wajib melakukan oral pada pasangan.");
+            }
+        }
+
+        function skipChallengeWithVeto() {
+            let activePlayer = currentPlayer; 
+            let vetoCost = 100;
+
+            if (playerMoney[activePlayer] >= vetoCost) {
+                playerMoney[activePlayer] -= vetoCost; 
+                playCoinSound();
+                let target = positions[activePlayer] - 2;
+                if (target < 1) target = 1;
+                positions[activePlayer] = target;
+                
+                updateTokens();
+                alert(`🚫 Hak Menolak Digunakan!\n${playerNames[activePlayer]} membayar 100 Poin Gairah dan MUNDUR 2 LANGKAH karena menolak tantangan.`);
+                closeModal(); 
+            } else {
+                alert(`❌ Poin Gairah ${playerNames[activePlayer]} tidak cukup (kurang dari 100 Poin)! Anda tidak bisa menolak dan wajib melakukan tantangan ini.`);
+            }
+        }
+
+        function checkWin() {
+            let maxBoard = isMonopolyMode ? 40 : BOARD_SIZE;
+            if (positions[currentPlayer] >= maxBoard && (!isMonopolyMode || (playerLaps[currentPlayer] === 3 && lapFinishedBy[0] !== null && lapFinishedBy[1] !== null))) {
+                isGameOver = true;
+                showEndGameStatsModal();
+                return;
+            }
+            isRolling = false;
+        }
+
+        function backToLobby() {
+            closeModal();
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('lobby-screen').style.display = 'flex';
+            document.getElementById('normal-menu-buttons').style.display = 'flex';
+            document.getElementById('ldr-panel').style.display = 'none';
+            document.getElementById('btn-create-room').style.display = 'block';
+            document.getElementById('share-link-area').style.display = 'none';
+            document.getElementById('lobby-subtitle').innerText = "Pilih Mode Permainan Pasangan";
+        }
+
+        function switchTurn() {
+            currentPlayer = currentPlayer === 0 ? 1 : 0;
+            const diceBtn = document.getElementById('dice-btn');
+            const p1Card = document.getElementById('p1-card');
+            const p2Card = document.getElementById('p2-card');
+            
+            if (currentPlayer === 0) {
+                p1Card.classList.add('active');
+                p2Card.classList.remove('active');
+                diceBtn.className = "dice-btn p1-turn";
+            } else {
+                p2Card.classList.add('active');
+                p1Card.classList.remove('active');
+                diceBtn.className = "dice-btn p2-turn";
+            }
+            updateTurnPermissions();
+        }
+
+        let currentTimerSeconds = 120;
+
+        function showModal(title, text, seconds = 120, illustration = "", isJailPrompt = false, isFinalWin = false) {
+            if (isOnlineLDR && isHost && conn && conn.open) {
+                conn.send({
+                    type: 'show-modal',
+                    title: title,
+                    text: text,
+                    seconds: seconds,
+                    illustration: illustration
+                });
+            }
+
+            document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-text').innerHTML = text;
+            document.getElementById('modal-illustration-container').innerHTML = illustration ? `<div class="modal-illustration">${illustration}</div>` : '';
+            document.getElementById('challenge-modal').style.display = 'flex';
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            const timerBox = document.getElementById('timer-box');
+            const btnGroup = document.getElementById('modal-btn-container');
+            timerBox.style.display = 'none';
+
+            document.getElementById('video-container-wa').style.display = 'none';
+
+            if (isFinalWin) {
+                showEndGameStatsModal();
+                return;
+            }
+
+            if (seconds === 0) {
+                let isWaitingMsg = title.includes("Tiba Lebih Dulu");
+                let actionOnClick = isWaitingMsg ? "closeModalCustom()" : "closeModal()";
+                btnGroup.innerHTML = isOnlineLDR && !isHost ? `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Menunggu Host melanjutkan...</p>` : `<button class="btn-action" onclick="${actionOnClick}">OK ✨</button>`;
+                return;
+            }
+
+            currentTimerSeconds = seconds;
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+
+            if (isOnlineLDR && !isHost) {
+                btnGroup.innerHTML = `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Menunggu Host mengontrol tantangan...</p>`;
+            } else {
+                if (isOnlineLDR) {
+                    btnGroup.innerHTML = `
+                        <button class="btn-start-timer" id="btn-main-action" onclick="handleFirstModalClick(${seconds})">📹 Hubungkan Video Call Dulu</button>
+                    `;
+                } else {
+                    timerBox.style.display = 'block';
+                    timerBox.innerText = m > 0 ? `${m}:${s < 10 ? '0' : ''}${s}` : `${seconds}s`;
+                    
+                    if (isJailPrompt) {
+                        btnGroup.innerHTML = `
+                            <button class="btn-start-timer" onclick="startTimerCountdown()">▶ Jalani Wajib Oral (Timer)</button>
+                            <button class="btn-action" style="background: linear-gradient(135deg, #f72585, #b5179e); width:100%;" onclick="payJailBail()">💸 Tebus 150 Poin Gairah</button>
+                        `;
+                    } else {
+                        if (isMonopolyMode) {
+                            btnGroup.innerHTML = `
+                                <button class="btn-start-timer" onclick="startTimerCountdown()">▶ Mulai Timer Tantangan</button>
+                                <button class="btn-veto" onclick="skipChallengeWithVeto()">🚫 Tolak Tantangan (-100 Poin & Mundur 2 Langkah)</button>
+                            `;
+                        } else {
+                            btnGroup.innerHTML = `
+                                <button class="btn-start-timer" onclick="startTimerCountdown()">▶ Mulai Timer Tantangan</button>
+                            `;
+                        }
+                    }
+                }
+            }
+        }
+
+        function showModalRemote(title, text, seconds, illustration) {
+            document.getElementById('modal-title').innerHTML = title;
+            document.getElementById('modal-text').innerHTML = text;
+            document.getElementById('modal-illustration-container').innerHTML = illustration ? `<div class="modal-illustration">${illustration}</div>` : '';
+            document.getElementById('challenge-modal').style.display = 'flex';
+
+            const timerBox = document.getElementById('timer-box');
+            const btnGroup = document.getElementById('modal-btn-container');
+            timerBox.style.display = 'none';
+            
+            currentTimerSeconds = seconds;
+            if (isOnlineLDR && !isHost) {
+                btnGroup.innerHTML = `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Menunggu Host menghubungkan video call...</p>`;
+            }
+        }
+
+        function handleFirstModalClick(seconds) {
+            if (isOnlineLDR) {
+                startVideoCallSession();
+            }
+
+            if (isMonopolyMode && isInJail[currentPlayer]) {
+                isInJail[currentPlayer] = false;
+            }
+
+            const btnGroup = document.getElementById('modal-btn-container');
+            const timerBox = document.getElementById('timer-box');
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            timerBox.style.display = 'block';
+            timerBox.innerText = m > 0 ? `${m}:${s < 10 ? '0' : ''}${s}` : `${seconds}s`;
+
+            if (isOnlineLDR && isHost && conn && conn.open) {
+                conn.send({
+                    type: 'start-timer',
+                    seconds: seconds
+                });
+            }
+
+            btnGroup.innerHTML = `
+                <button class="btn-start-timer" onclick="startTimerCountdown()">▶ Mulai Timer Tantangan</button>
+            `;
+        }
+
+        function startTimerCountdown() {
+            if (isMonopolyMode && isInJail[currentPlayer]) {
+                isInJail[currentPlayer] = false;
+            }
+
+            if (isOnlineLDR && isHost && conn && conn.open) {
+                conn.send({
+                    type: 'start-timer',
+                    seconds: currentTimerSeconds
+                });
+            }
+            runCountdownLogic(currentTimerSeconds);
+        }
+
+        function startTimerCountdownRemote(seconds) {
+            if (isOnlineLDR) {
+                startVideoCallStatusAndCall();
+            }
+            const timerBox = document.getElementById('timer-box');
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            timerBox.style.display = 'block';
+            timerBox.innerText = m > 0 ? `${m}:${s < 10 ? '0' : ''}${s}` : `${seconds}s`;
+            runCountdownLogic(seconds);
+        }
+
+        function startVideoCallStatusAndCall() {
+            if (isOnlineLDR) {
+                startVideoCallSession();
+            }
+        }
+
+        function runCountdownLogic(seconds) {
+            const timerBox = document.getElementById('timer-box');
+            const btnGroup = document.getElementById('modal-btn-container');
+            
+            if (isOnlineLDR && !isHost) {
+                btnGroup.innerHTML = `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Timer sedang berjalan...</p>`;
+            } else {
+                btnGroup.innerHTML = `<button class="btn-skip" onclick="closeModal()">Selesai / Skip ⏭</button>`;
+            }
+
+            let timeLeft = seconds;
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    let min = Math.floor(timeLeft / 60);
+                    let sec = timeLeft % 60;
+                    timerBox.innerText = min > 0 ? `${min}:${sec < 10 ? '0' : ''}${sec}` : `${timeLeft}s`;
+                } else {
+                    timerBox.innerText = "Waktu Selesai! 🎉";
+                    clearInterval(countdownInterval);
+                    playAlarmSound();
+                    
+                    if (isOnlineLDR && !isHost) {
+                        btnGroup.innerHTML = `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Menunggu Host melanjutkan...</p>`;
+                    } else {
+                        btnGroup.innerHTML = `<button class="btn-action" onclick="closeModal()">Lanjutkan ✨</button>`;
+                    }
+                }
+            }, 1000);
+        }
+
+        function closeModal() {
+            if (isOnlineLDR && isHost && conn && conn.open) {
+                conn.send({ type: 'close-modal' });
+            }
+            closeModalRemote();
+        }
+
+        function closeModalCustom() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            stopVideoCallSession();
+            document.getElementById('challenge-modal').style.display = 'none';
+            switchTurn();
+            isRolling = false;
+        }
+
+        function closeModalRemote() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            stopVideoCallSession();
+            document.getElementById('challenge-modal').style.display = 'none';
+            
+            if (!isGameOver) {
+                switchTurn();
+            }
+            isRolling = false;
+        }
+    </script>
+</body>
+</html>
