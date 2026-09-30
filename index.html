@@ -16,7 +16,7 @@
 
           if (isInApp && !sessionStorage.getItem('inapp_warned')) {
               sessionStorage.setItem('inapp_warned', 'true');
-              alert("⚠️ PENTING UNTUK MODE LDR:\n\nAnda membuka link ini dari dalam aplikasi chat.\n\nAgar koneksi Video Call & Game lancar tanpa terputus, harap salin link halaman ini dan buka langsung melalui aplikasi SAFARI atau CHROME di HP Anda!");
+              alert("⚠️️ PENTING UNTUK MODE LDR:\n\nAnda membuka link ini dari dalam aplikasi chat.\n\nAgar koneksi Video Call & Game lancar tanpa terputus, harap salin link halaman ini dan buka langsung melalui aplikasi SAFARI atau CHROME di HP Anda!");
           }
       })();
     </script>
@@ -1806,7 +1806,15 @@
                         let ownerIdx = propInfo.owner;
                         let rentFee = propInfo.level * 40;
                         playerMoney[p] -= rentFee;
-                        if (playerMoney[p] < 0) playerMoney[p] = 0;
+                        
+                        if (playerMoney[p] <= 0) {
+                            playerMoney[p] = 0;
+                            updateTokens();
+                            createMonopolyBoard();
+                            showBankruptcyModal(p, ownerIdx, `Mendarat di properti ${playerNames[ownerIdx]} dan poin habis!`);
+                            return;
+                        }
+
                         playerMoney[ownerIdx] += rentFee;
                         playCoinSound();
                         updateTokens();
@@ -1902,17 +1910,105 @@
             executeMove(p, Math.abs(steps), target);
         }
 
+        function showBankruptcyModal(bankruptPlayerIdx, winnerPlayerIdx, reasonText) {
+            let bankruptName = playerNames[bankruptPlayerIdx];
+            let winnerName = playerNames[winnerPlayerIdx];
+
+            document.getElementById('modal-title').innerHTML = `💥 ${bankruptName} BANGKRUT!`;
+            document.getElementById('modal-text').innerHTML = `
+                <b>Alasan:</b> ${reasonText}<br><br>
+                💸 Poin Gairahmu telah habis terkuras menjadi **0 Poin**!<br><br>
+                🔥 <b>Hukuman Kebangkrutan Sensual:</b><br>
+                <b>${bankruptName}</b> wajib menyerahkan diri dan menerima **hukuman servis intim / eksplorasi tubuh selama 1 menit 30 detik penuh** (tanpa pijatan dan tanpa perlawanan) dari <b>${winnerName}</b>!<br><br>
+                <i>Setelah hukuman selesai, bank cinta akan memberikan modal penyelamatan sebesar +100 Poin Gairah agar bisa bangkit kembali.</i>
+            `;
+            document.getElementById('modal-illustration-container').innerHTML = `
+                <div class="modal-illustration">
+                    <strong>Pilihan Hukuman Kebangkrutan (90 Detik):</strong><br>
+                    • Servis Oral / Jilatan Intim Sepihak.<br>
+                    • Kepatuhan Total & Eksplorasi Tubuh.<br>
+                    • Modal direset ke +100 Poin Gairah setelah hukuman selesai.
+                </div>
+            `;
+            document.getElementById('challenge-modal').style.display = 'flex';
+
+            const timerBox = document.getElementById('timer-box');
+            const btnGroup = document.getElementById('modal-btn-container');
+
+            currentTimerSeconds = 90; // Durasi 1 menit 30 detik (90 detik)
+            let m = Math.floor(currentTimerSeconds / 60);
+            let s = currentTimerSeconds % 60;
+            timerBox.style.display = 'block';
+            timerBox.innerText = m > 0 ? `${m}:${s < 10 ? '0' : ''}${s}` : `${currentTimerSeconds}s`;
+
+            if (isOnlineLDR && !isHost) {
+                btnGroup.innerHTML = `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Menunggu Host menjalankan timer hukuman...</p>`;
+            } else {
+                btnGroup.innerHTML = `
+                    <button class="btn-start-timer" onclick="startBankruptcyTimer(${bankruptPlayerIdx})">▶ Mulai Hukuman Bangkrut (1 Menit 30 Detik)</button>
+                `;
+            }
+        }
+
+        function startBankruptcyTimer(bankruptPlayerIdx) {
+            if (isOnlineLDR && isHost && conn && conn.open) {
+                conn.send({
+                    type: 'start-timer',
+                    seconds: currentTimerSeconds
+                });
+            }
+
+            const timerBox = document.getElementById('timer-box');
+            const btnGroup = document.getElementById('modal-btn-container');
+            
+            if (isOnlineLDR && !isHost) {
+                btnGroup.innerHTML = `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Hukuman intim sedang berlangsung...</p>`;
+            } else {
+                btnGroup.innerHTML = `<button class="btn-skip" onclick="resolveBankruptcy(${bankruptPlayerIdx})">Selesai Hukuman ⏭</button>`;
+            }
+
+            let timeLeft = currentTimerSeconds;
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    let min = Math.floor(timeLeft / 60);
+                    let sec = timeLeft % 60;
+                    timerBox.innerText = min > 0 ? `${min}:${sec < 10 ? '0' : ''}${sec}` : `${timeLeft}s`;
+                } else {
+                    timerBox.innerText = "Hukuman 90 Detik Selesai! 🔥";
+                    clearInterval(countdownInterval);
+                    playAlarmSound();
+                    
+                    if (isOnlineLDR && !isHost) {
+                        btnGroup.innerHTML = `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Menunggu Host melanjutkan...</p>`;
+                    } else {
+                        btnGroup.innerHTML = `<button class="btn-action" onclick="resolveBankruptcy(${bankruptPlayerIdx})">Bangkit & Terima Modal +100 Poin ✨</button>`;
+                    }
+                }
+            }, 1000);
+        }
+
+        function resolveBankruptcy(bankruptPlayerIdx) {
+            playerMoney[bankruptPlayerIdx] = 100;
+            playCoinSound();
+            updateTokens();
+            closeModal();
+            alert(`✨ ${playerNames[bankruptPlayerIdx]} bangkit kembali dengan modal +100 Poin Gairah! Lanjutkan permainan.`);
+        }
+
         function showMassagePenaltyModal(winnerIdx, loserIdx) {
             let winnerName = playerNames[winnerIdx];
             let loserName = playerNames[loserIdx];
             let nextLap = playerLaps[winnerIdx] + 1;
-            let levelTitle = nextLap === 2 ? "🔥 Hukuman Pijat 2 Menit ➔ Naik ke Putaran 2 (Foreplay)" : "💋 Hukuman Pijat 2 Menit ➔ Naik ke Putaran 3 (Variasi Posisi)";
+            let levelTitle = nextLap === 2 ? "🔥 Hukuman Sensual 2 Menit ➔ Naik ke Putaran 2 (Foreplay)" : "💋 Hukuman Sensual 2 Menit ➔ Naik ke Putaran 3 (Variasi Posisi)";
 
             document.getElementById('modal-title').innerHTML = levelTitle;
             document.getElementById('modal-text').innerHTML = `
                 🏁 <b>${winnerName}</b> tiba lebih dulu dan memenangkan putaran ini!<br>
                 😢 <b>${loserName}</b> tiba belakangan dan kalah.<br><br>
-                💆‍♂ <b>Hukuman:</b> ${loserName} wajib memijat ${winnerName} selama **2 menit** penuh sebelum papan naik ke tahap berikutnya!
+                🔥 <b>Hukuman:</b> ${loserName} wajib melayani ${winnerName} dengan eksplorasi tubuh sensual selama **2 menit** penuh tanpa perlawanan sebelum papan naik ke tahap berikutnya!
             `;
             document.getElementById('modal-illustration-container').innerHTML = '';
             document.getElementById('challenge-modal').style.display = 'flex';
@@ -1929,7 +2025,7 @@
             timerBox.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
 
             btnGroup.innerHTML = `
-                <button class="btn-start-timer" onclick="startMassageTimerAndUpgrade(${nextLap})">▶ Mulai Timer Pijat (2 Menit)</button>
+                <button class="btn-start-timer" onclick="startMassageTimerAndUpgrade(${nextLap})">▶ Mulai Timer Hukuman (2 Menit)</button>
             `;
         }
 
@@ -1949,7 +2045,7 @@
                     let sec = timeLeft % 60;
                     timerBox.innerText = min > 0 ? `${min}:${sec < 10 ? '0' : ''}${sec}` : `${timeLeft}s`;
                 } else {
-                    timerBox.innerText = "Waktu Pijat Selesai! 🎉";
+                    timerBox.innerText = "Waktu Hukuman Selesai! 🎉";
                     clearInterval(countdownInterval);
                     playAlarmSound();
                     btnGroup.innerHTML = `<button class="btn-action" onclick="proceedToNextLap(${targetLap})">Lanjut ke Putaran Berikutnya ✨</button>`;
