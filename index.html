@@ -641,11 +641,6 @@
 </head>
 <body>
 
-    <!-- Audio Element untuk Musik Latar Online (Lo-Fi / Romantic Chill) -->
-    <audio id="bgm-audio" loop preload="auto">
-        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=lofi-study-112191.mp3" type="audio/mpeg">
-    </audio>
-
     <div class="lobby-container" id="lobby-screen">
         <div class="lobby-card">
             <h1>Ular Tangga & Monopoli Cinta 💕</h1>
@@ -657,11 +652,11 @@
                 <button class="btn-ldr" onclick="showLDROnlineMenu()">📱 Babak 3: Mode LDR (Online / 2 HP)</button>
                 <button class="btn-monopoli" onclick="startMonopolyGame()">🔥 Babak 4: Monopoli 3 Putaran Gairah (Beli Petak)</button>
                 
-                <div style="font-size:0.6rem; font-weight:bold; color:#d90429; margin-top:4px;">🎵 Soundtrack Musik Latar Online:</div>
+                <div style="font-size:0.6rem; font-weight:bold; color:#d90429; margin-top:4px;">🎵 Soundtrack Musik Latar Internal (Anti-Gagal):</div>
                 <div class="music-selector-box">
-                    <button class="music-genre-btn active-genre" id="genre-chill" onclick="setMusicGenre('chill', 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=lofi-study-112191.mp3')">Lo-Fi Chill</button>
-                    <button class="music-genre-btn" id="genre-sensual" onclick="setMusicGenre('sensual', 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=chill-abstract-intention-12099.mp3')">Sensual Vibe</button>
-                    <button class="music-genre-btn" id="genre-playful" onclick="setMusicGenre('playful', 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c2a737f2.mp3?filename=good-night-160166.mp3')">Romantic Night</button>
+                    <button class="music-genre-btn active-genre" id="genre-chill" onclick="setMusicGenre('chill')">Lo-Fi Chill</button>
+                    <button class="music-genre-btn" id="genre-sensual" onclick="setMusicGenre('sensual')">Sensual Vibe</button>
+                    <button class="music-genre-btn" id="genre-playful" onclick="setMusicGenre('playful')">Romantic Night</button>
                 </div>
                 <button class="btn-musik" id="lobby-music-btn" onclick="toggleAudio()">🎵 Play Musik Latar</button>
             </div>
@@ -1067,19 +1062,21 @@
 
         let audioCtx = null;
         let isAudioPlaying = false;
+        let currentMusicGenre = 'chill';
+        let bgmInterval = null;
         let countdownInterval = null;
         let isGameOver = false;
 
-        function setMusicGenre(genre, audioUrl) {
+        function setMusicGenre(genre) {
+            currentMusicGenre = genre;
             document.getElementById('genre-chill').classList.remove('active-genre');
             document.getElementById('genre-sensual').classList.remove('active-genre');
             document.getElementById('genre-playful').classList.remove('active-genre');
             document.getElementById(`genre-${genre}`).classList.add('active-genre');
 
-            const bgm = document.getElementById('bgm-audio');
-            bgm.src = audioUrl;
             if (isAudioPlaying) {
-                bgm.play().catch(e => {});
+                stopBGM();
+                startBGM();
             }
         }
 
@@ -1094,18 +1091,62 @@
 
         function toggleAudio() {
             initAudioContext();
-            const bgm = document.getElementById('bgm-audio');
             if (isAudioPlaying) {
-                bgm.pause();
+                stopBGM();
                 document.getElementById('lobby-music-btn').innerText = "🎵 Play Musik Latar";
                 isAudioPlaying = false;
             } else {
-                bgm.play().then(() => {
-                    document.getElementById('lobby-music-btn').innerText = "🎵 Matikan Musik";
-                    isAudioPlaying = true;
-                }).catch(err => {
-                    alert("Gagal memutar musik otomatis. Silakan klik tombol play sekali lagi.");
-                });
+                startBGM();
+                document.getElementById('lobby-music-btn').innerText = "🎵 Matikan Musik";
+                isAudioPlaying = true;
+            }
+        }
+
+        function startBGM() {
+            if (!audioCtx) return;
+            
+            let melody = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63]; 
+            let tempo = 500;
+            let waveType = 'triangle';
+
+            if (currentMusicGenre === 'sensual') {
+                melody = [196.00, 233.08, 293.66, 349.23, 293.66, 233.08]; 
+                tempo = 700;
+                waveType = 'sine';
+            } else if (currentMusicGenre === 'playful') {
+                melody = [330, 392, 440, 523, 587, 523, 440, 392]; 
+                tempo = 350;
+                waveType = 'sine';
+            }
+
+            let noteIdx = 0;
+            if (bgmInterval) clearInterval(bgmInterval);
+
+            bgmInterval = setInterval(() => {
+                if (!isAudioPlaying) return;
+                try {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.type = waveType;
+                    osc.frequency.setValueAtTime(melody[noteIdx], audioCtx.currentTime);
+                    
+                    gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.45);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.45);
+                    
+                    noteIdx = (noteIdx + 1) % melody.length;
+                } catch (e) {}
+            }, tempo);
+        }
+
+        function stopBGM() {
+            if (bgmInterval) {
+                clearInterval(bgmInterval);
+                bgmInterval = null;
             }
         }
 
