@@ -16,7 +16,7 @@
 
           if (isInApp && !sessionStorage.getItem('inapp_warned')) {
               sessionStorage.setItem('inapp_warned', 'true');
-              alert("⚠️️ PENTING UNTUK MODE LDR:\n\nAnda membuka link ini dari dalam aplikasi chat.\n\nAgar koneksi Video Call & Game lancar tanpa terputus, harap salin link halaman ini dan buka langsung melalui aplikasi SAFARI atau CHROME di HP Anda!");
+              alert("⚠️ PENTING UNTUK MODE LDR:\n\nAnda membuka link ini dari dalam aplikasi chat.\n\nAgar koneksi Video Call & Game lancar tanpa terputus, harap salin link halaman ini dan buka langsung melalui aplikasi SAFARI atau CHROME di HP Anda!");
           }
       })();
     </script>
@@ -1468,6 +1468,25 @@
             { title: "💌 Dana Umum: Denda Keterlambatan", desc: "Bayar denda 90 Poin Gairah karena terlalu lama merespons rayuan pasangan.", reward: -90 }
         ];
 
+        const bankruptcyPenalties = [
+            {
+                title: "🔥 Hukuman Bangkrut: Servis Oral / Jilatan Intim",
+                desc: "Wajib memberikan ciuman, isapan, dan jilatan sensual sepihak mulai dari leher, dada, turun ke pusar, hingga area sensitif selama <b>45 detik</b>."
+            },
+            {
+                title: "🔥 Hukuman Bangkrut: Kepatuhan & Eksplorasi Total",
+                desc: "Berlutut atau berbaring pasrah tanpa perlawanan, menerima sentuhan, remasan, serta ciuman di seluruh tubuh dari pemenang selama <b>45 detik</b>."
+            },
+            {
+                title: "🔥 Hukuman Bangkrut: Sentuhan Tebak Raba (Mata Tertutup)",
+                desc: "Pihak yang bangkrut menutup mata, sementara pemenang bebas meraba, menggigit kecil, dan merangsang bagian tubuh mana pun untuk memancing desahan selama <b>45 detik</b>."
+            },
+            {
+                title: "🔥 Hukuman Bangkrut: Ciuman Panas Liar Sepihak",
+                desc: "Memberikan ciuman basah mendalam dan liar secara terus-menerus tanpa boleh meminta balasan dari pemenang selama <b>45 detik</b>."
+            }
+        ];
+
         function getMonopolyGridCoord(num) {
             if (num >= 1 && num <= 11) {
                 return { r: 9, c: 11 - num };
@@ -1914,20 +1933,23 @@
             let bankruptName = playerNames[bankruptPlayerIdx];
             let winnerName = playerNames[winnerPlayerIdx];
 
+            // Ambil hukuman random secara otomatis
+            let randomPenalty = bankruptcyPenalties[Math.floor(Math.random() * bankruptcyPenalties.length)];
+
             document.getElementById('modal-title').innerHTML = `💥 ${bankruptName} BANGKRUT!`;
             document.getElementById('modal-text').innerHTML = `
                 <b>Alasan:</b> ${reasonText}<br><br>
                 💸 Poin Gairahmu telah habis terkuras menjadi **0 Poin**!<br><br>
-                🔥 <b>Hukuman Kebangkrutan Sensual:</b><br>
-                <b>${bankruptName}</b> wajib menyerahkan diri dan menerima **hukuman servis intim / eksplorasi tubuh selama 1 menit 30 detik penuh** (tanpa pijatan dan tanpa perlawanan) dari <b>${winnerName}</b>!<br><br>
-                <i>Setelah hukuman selesai, bank cinta akan memberikan modal penyelamatan sebesar +100 Poin Gairah agar bisa bangkit kembali.</i>
+                <b>${randomPenalty.title}</b><br>
+                ${randomPenalty.desc}<br><br>
+                <b>${bankruptName}</b> wajib menerima hukuman ini dari <b>${winnerName}</b> selama <b>45 detik</b> penuh!<br>
+                <i>Setelah hukuman selesai, bank cinta memberikan modal penyelamatan +100 Poin Gairah.</i>
             `;
             document.getElementById('modal-illustration-container').innerHTML = `
                 <div class="modal-illustration">
-                    <strong>Pilihan Hukuman Kebangkrutan (90 Detik):</strong><br>
-                    • Servis Oral / Jilatan Intim Sepihak.<br>
-                    • Kepatuhan Total & Eksplorasi Tubuh.<br>
-                    • Modal direset ke +100 Poin Gairah setelah hukuman selesai.
+                    <strong>Sistem Hukuman Acak (45 Detik):</strong><br>
+                    • Dipilih secara random dari bank sanksi asmara.<br>
+                    • Modal direset ke +100 Poin Gairah setelah selesai.
                 </div>
             `;
             document.getElementById('challenge-modal').style.display = 'flex';
@@ -1935,17 +1957,17 @@
             const timerBox = document.getElementById('timer-box');
             const btnGroup = document.getElementById('modal-btn-container');
 
-            currentTimerSeconds = 90; // Durasi 1 menit 30 detik (90 detik)
+            currentTimerSeconds = 45; // Durasi diubah menjadi 45 detik
             let m = Math.floor(currentTimerSeconds / 60);
             let s = currentTimerSeconds % 60;
             timerBox.style.display = 'block';
-            timerBox.innerText = m > 0 ? `${m}:${s < 10 ? '0' : ''}${s}` : `${currentTimerSeconds}s`;
+            timerBox.innerText = `${currentTimerSeconds}s`;
 
             if (isOnlineLDR && !isHost) {
                 btnGroup.innerHTML = `<p style="font-size:0.7rem; color:#d90429; font-weight:bold;">Menunggu Host menjalankan timer hukuman...</p>`;
             } else {
                 btnGroup.innerHTML = `
-                    <button class="btn-start-timer" onclick="startBankruptcyTimer(${bankruptPlayerIdx})">▶ Mulai Hukuman Bangkrut (1 Menit 30 Detik)</button>
+                    <button class="btn-start-timer" onclick="startBankruptcyTimer(${bankruptPlayerIdx})">▶ Mulai Hukuman Bangkrut (45 Detik)</button>
                 `;
             }
         }
@@ -1977,7 +1999,7 @@
                     let sec = timeLeft % 60;
                     timerBox.innerText = min > 0 ? `${min}:${sec < 10 ? '0' : ''}${sec}` : `${timeLeft}s`;
                 } else {
-                    timerBox.innerText = "Hukuman 90 Detik Selesai! 🔥";
+                    timerBox.innerText = "Hukuman 45 Detik Selesai! 🔥";
                     clearInterval(countdownInterval);
                     playAlarmSound();
                     
